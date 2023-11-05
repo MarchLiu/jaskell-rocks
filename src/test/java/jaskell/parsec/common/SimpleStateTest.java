@@ -47,7 +47,7 @@ public class SimpleStateTest extends Base {
 
         Character c = state.next();
 
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
 
         Integer a = state.begin();
 
@@ -59,7 +59,7 @@ public class SimpleStateTest extends Base {
 
         Character d = state.next();
 
-        assertEquals(new Character('e'), d);
+        assertEquals('e', d);
     }
 
     /**
@@ -72,14 +72,14 @@ public class SimpleStateTest extends Base {
         Character c = state.next();
 
 
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
         state.next();
 
         state.commit(a);
 
         Character d = state.next();
 
-        assertEquals(new Character('l'), d);
+        assertEquals('l', d);
     }
 
     /**
@@ -93,13 +93,13 @@ public class SimpleStateTest extends Base {
         Character c = state.next();
 
 
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
 
         state.rollback(a);
 
         Character d = state.next();
 
-        assertEquals(new Character('h'), d);
+        assertEquals('h', d);
     }
 
     /**
@@ -111,19 +111,19 @@ public class SimpleStateTest extends Base {
 
 
         Character c = state.next();
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
 
         Character d = state.next();
-        assertEquals(new Character('e'), d);
+        assertEquals('e', d);
 
         Character e = state.next();
-        assertEquals(new Character('l'),e);
+        assertEquals('l',e);
 
         Character f = state.next();
-        assertEquals(new Character('l'), f);
+        assertEquals('l', f);
 
         Character g = state.next();
-        assertEquals(new Character('o'), g);
+        assertEquals('o', g);
 
     }
 

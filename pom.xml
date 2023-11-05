@@ -4,9 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>io.github.marchliu</groupId>
     <artifactId>jaskell-rocks</artifactId>
     <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>io.github.marchliu:jaskell-rocks</name>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -20,6 +22,7 @@
             <url>https://www.opensource.org/licenses/mit-license.php</url>
         </license>
     </licenses>
+
     <developers>
         <developer>
             <name>Liu Xin</name>
@@ -34,9 +37,9 @@
     <url>https://github.com/MarchLiu/jasekll-rocks</url>
 
     <scm>
-        <connection>scm:git:git://github.com:MarchLiu/jasekll-java8.git</connection>
-        <developerConnection>scm:git:ssh://github.com:MarchLiu/jasekll-java8.git</developerConnection>
-        <url>https://github.com/MarchLiu/jaskell-java8/tree/master</url>
+        <connection>scm:git:git://github.com:MarchLiu/jasekll-rocks.git</connection>
+        <developerConnection>scm:git:ssh://github.com:MarchLiu/jasekll-rocks.git</developerConnection>
+        <url>https://github.com/MarchLiu/jaskell-rocks/tree/master</url>
     </scm>
 
     <distributionManagement>
