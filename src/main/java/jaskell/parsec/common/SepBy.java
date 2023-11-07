@@ -1,6 +1,7 @@
 package jaskell.parsec.common;
 
 import jaskell.parsec.ParsecException;
+import jaskell.util.Success;
 
 import java.io.EOFException;
 import java.util.ArrayList;
@@ -11,23 +12,22 @@ import java.util.List;
  * SepBy 尝试匹配由给定规则分隔开的0到多次重复匹配.
  */
 public class SepBy<E, T, Sep>
-    implements Parsec<E, List<T>> {
+        implements Parsec<E, List<T>> {
     private final Parsec<E, Sep> by;
     private final Parsec<E, T> p;
+
     @Override
     public List<T> parse(State<E> s)
             throws Throwable {
         List<T> re = new ArrayList<>();
-        try {
-            re.add(this.p.parse(s));
-            while (true) {
-                this.by.parse(s);
-                re.add(this.p.parse(s));
-            }
-        } catch (EOFException| ParsecException e) {
-            return re;
+        re.add(this.p.parse(s));
+        var p = this.by.then(this.p);
+        while (p.exec(s) instanceof Success<T> success) {
+            success.foreach(re::add);
         }
+        return re;
     }
+
     public SepBy(Parsec<E, T> p, Parsec<E, Sep> by) {
         this.by = new Attempt<>(by);
         this.p = new Attempt<>(p);

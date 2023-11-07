@@ -33,7 +33,7 @@ public class NCh implements Parsec<Character, Character> {
                 return c;
             }
         } else {
-            Character lc = c.toString().toLowerCase().charAt(0);
+            Character lc = Character.toLowerCase(c);
             if(!chr.equals(lc)){
                 return c;
             }

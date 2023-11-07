@@ -27,7 +27,7 @@ public class OneOfTest extends Base {
         Character c = oneOf.parse(state);
 
 
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
     }
 
     @Test

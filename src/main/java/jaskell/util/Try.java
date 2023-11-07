@@ -12,162 +12,57 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @since 2020/12/06 13:56
  */
-public class Try<T>{
-    final Object slot;
-    final boolean _ok;
-    int idx = 0;
+public interface Try<T>{
 
-    public Try(T val){
-        slot = val;
-        _ok = true;
-    }
-
-    public Try(Throwable err){
-        slot = err;
-        _ok = false;
-    }
-
-    public Try<T> or(Try<T> other) {
-        if(_ok){
-            return this;
-        } else {
-            return other;
-        }
-    }
+    public Try<T> or(Try<T> other);
 
     @SuppressWarnings("unchecked")
-    public <U> Try<U> map(Function<T, U> mapper) {
-        if(_ok) {
-            try {
-                return Try.success(mapper.apply((T)slot));
-            } catch (Throwable err) {
-                return Try.failure(err);
-            }
-        } else {
-            return Try.failure((Throwable) slot);
-        }
-    }
+    public <U> Try<U> map(Function<T, U> mapper) ;
 
-    public Try<T> recover(Function<Throwable, T> func) {
-        if(_ok) {
-            return this;
-        } else {
-            try {
-                return Try.success(func.apply((Throwable) slot));
-            } catch (Throwable err){
-                return Try.failure(err);
-            }
-        }
-    }
+    public Try<T> recover(Function<Throwable, T> func) ;
 
-    public Try<T> recoverToTry(Function<Throwable, Try<T>> func) {
-        if(_ok) {
-            return this;
-        } else {
-            try {
-                return func.apply((Throwable) slot);
-            } catch (Throwable err){
-                return Try.failure(err);
-            }
-        }
-    }
+    public Try<T> recoverToTry(Function<Throwable, Try<T>> func);
 
     @SuppressWarnings("unchecked")
-    public T get() throws Throwable {
-        if(_ok){
-            return (T)slot;
-        } else {
-            throw (Throwable)slot;
-        }
-    }
+    public T get() throws Throwable;
 
     @SuppressWarnings("unchecked")
-    public T orElse(T other) {
-        if(_ok) {
-            return (T)slot;
-        } else {
-            return other;
-        }
-    }
+    public T orElse(T other) ;
 
     @SuppressWarnings("unchecked")
-    public T orElseGet(Try<? extends T> other) throws Throwable {
-        if(_ok) {
-            return (T)slot;
-        } else {
-            return other.get();
-        }
-    }
+    public T orElseGet(Try<? extends T> other) throws Throwable;
 
     @SuppressWarnings("unchecked")
-    public T getOr(Function<? super Throwable, ? extends T> other) {
-        if(_ok) {
-            return (T)slot;
-        } else {
-            return other.apply((Throwable) slot);
-        }
-    }
+    public T getOr(Function<? super Throwable, ? extends T> other) ;
 
     @SuppressWarnings("unchecked")
-    public T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable {
-        if(_ok) {
-            return (T)slot;
-        } else {
-            return other.apply((Throwable) slot).get();
-        }
-    }
+    public T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable;
 
-    public boolean isOk() {
-        return _ok;
-    }
+    public boolean isOk();
 
-    public boolean isErr() {
-        return !_ok;
-    }
+    public boolean isErr() ;
 
     @SuppressWarnings("unchecked")
-    public <U> Try<U> flatMap(Function<? super T, Try<U>> mapper) {
-        if (_ok) {
-            try {
-                return mapper.apply((T)slot);
-            } catch (Throwable err) {
-                return Try.failure(err);
-            }
-        } else {
-            return Try.failure((Throwable) this.slot);
-        }
-    }
+    public <U> Try<U> flatMap(Function<? super T, Try<U>> mapper) ;
 
     @SuppressWarnings("unchecked")
-    public void foreach(Consumer<T> consumer) {
-        if(_ok) {
-            consumer.accept((T)slot);
-        }
-    }
+    public void foreach(Consumer<T> consumer) ;
 
     @SuppressWarnings("unchecked")
-    public boolean anyMatch(Predicate<T> test) {
-        if(_ok){
-            return test.test((T)slot);
-        } else {
-            return false;
-        }
-    }
+    public boolean anyMatch(Predicate<T> test) ;
 
-    public Throwable error() {
-        return (Throwable)this.slot;
-    }
+    public Throwable error();
 
     public static <T> Try<T> success(T value) {
-        return new Try<>(value);
+        return new Success<>(value);
     }
 
     public static <T> Try<T> failure(Throwable err) {
-        return new Try<>(err);
+        return new Failure<>(err);
     }
 
     public static <T> Try<T> failure(String message) {
-        return new Try<>(new Exception(message));
+        return new Failure<>(new Exception(message));
     }
 
     public static <T> Try<T> tryIt(Supplier<T> supplier) {

@@ -1,6 +1,7 @@
 package jaskell.parsec.common;
 
 import jaskell.parsec.ParsecException;
+import jaskell.util.Success;
 
 import java.io.EOFException;
 import java.util.ArrayList;
@@ -17,13 +18,10 @@ public class Many<E, T>
     @Override
     public  List<T> parse(State<E> s) throws EOFException, ParsecException {
         List<T> re = new ArrayList<>();
-        try{
-            while (true){
-                re.add(this.parsec.parse(s));
-            }
-        } catch (Throwable e){
-            return re;
+        while(this.parsec.exec(s) instanceof Success<T> success) {
+            success.foreach(re::add);
         }
+        return re;
     }
 
     public Many(Parsec<E, T> parsec) {

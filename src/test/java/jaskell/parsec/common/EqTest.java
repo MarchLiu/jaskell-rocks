@@ -22,7 +22,7 @@ public class EqTest extends Base {
 
         Eq<Character> eq = new Eq<>('h');
         Character c = eq.parse(state);
-        assertEquals(new Character('h'), c);
+        assertEquals('h', c);
     }
 
 

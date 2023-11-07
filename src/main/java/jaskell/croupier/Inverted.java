@@ -20,7 +20,7 @@ class Inverted<T> implements Poker<T> {
 
     @Override
     public Optional<Integer> select(List<? extends T> cards) {
-        if (cards == null || cards.size() == 0) {
+        if (cards == null || cards.isEmpty()) {
             return Optional.empty();
         }
         if (cards.size() == 1) {

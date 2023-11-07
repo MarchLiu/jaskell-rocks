@@ -21,6 +21,6 @@ public class ScNumber implements Parsec<Character, String> {
   @Override
   public String parse(State<Character> s) throws Throwable {
     String mantissa = decimal.parse(s);
-    return exp.exec(s).flatMap(e -> new Try<>(mantissa + e)).orElse(mantissa);
+    return exp.exec(s).flatMap(e -> Try.success(mantissa + e)).orElse(mantissa);
   }
 }

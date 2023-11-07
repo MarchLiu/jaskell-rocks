@@ -35,7 +35,7 @@ public class Croupier<T> {
     public List<T> select(List<T> list, int size) {
         List<T> buffer = new ArrayList<>(list);
         List<T> result = new ArrayList<>();
-        while (buffer.size() > 0 && result.size() < size) {
+        while (!buffer.isEmpty() && result.size() < size) {
             randDraw(buffer).ifPresent(result::add);
         }
         return result;

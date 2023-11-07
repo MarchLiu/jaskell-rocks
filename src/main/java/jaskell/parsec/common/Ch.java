@@ -23,7 +23,7 @@ public class Ch implements Parsec<Character, Character> {
             this.parser = s -> {
                 try {
                     Character c = s.next();
-                    if (c.equals(chr)) {
+                    if (c.equals(chr1)) {
                         return Try.success(c);
                     } else {
                         return Try.failure(s.trap(String.format("expect char %c (case sensitive %b) at %s but %c",
@@ -34,11 +34,11 @@ public class Ch implements Parsec<Character, Character> {
                 }
             };
         } else {
-            chr1 = chr.toString().toLowerCase().charAt(0);
+            chr1 = Character.toLowerCase(chr);
             this.parser = s -> {
                 try {
                     Character c = s.next();
-                    if (chr.equals(c.toString().toLowerCase().charAt(0))) {
+                    if (chr1.equals(c) ){
                         return Try.success(c);
                     } else {
                         return Try.failure(s.trap(String.format("expect char %c (case sensitive %b) at %s but %c",

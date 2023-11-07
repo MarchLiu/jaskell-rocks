@@ -38,7 +38,7 @@ public class Text
                     throw s.trap(message);
                 }
             } else {
-                if (c != data.toString().toLowerCase().charAt(0)) {
+                if (c != Character.toLowerCase(data)) {
                     String message = String.format("Expect %c at %d but %c", c, idx, data);
                     throw s.trap(message);
                 }

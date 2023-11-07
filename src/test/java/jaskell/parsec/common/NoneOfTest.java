@@ -22,7 +22,7 @@ public class NoneOfTest extends Base {
         NoneOf<Character> noneOf = new NoneOf<>(Stream.of('k', 'o', 'f').collect(toSet()));
         Character c = noneOf.parse(state);
 
-        assertEquals(c, new Character('h'));
+        assertEquals(c, 'h');
     }
 
     @Test

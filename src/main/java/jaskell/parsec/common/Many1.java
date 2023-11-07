@@ -1,5 +1,7 @@
 package jaskell.parsec.common;
 
+import jaskell.util.Success;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,7 @@ import java.util.List;
  * Many1 匹配给定算子 1 到多次.
  */
 public class Many1<E, T>
-    implements Parsec<E, List<T>> {
+        implements Parsec<E, List<T>> {
     private final Parsec<E, T> parser;
 
     @Override
@@ -16,16 +18,13 @@ public class Many1<E, T>
         List<T> re = new ArrayList<>();
         re.add(this.parser.parse(s));
         Parsec<E, T> p = new Attempt<>(parser);
-        try{
-            while (true){
-                re.add(p.parse(s));
-            }
-        } catch (Exception e){
-            return re;
+        while (p.exec(s) instanceof Success<T> item) {
+            re.add(item.get());
         }
+        return re;
     }
 
-    public Many1(Parsec<E, T> parsec){
+    public Many1(Parsec<E, T> parsec) {
         this.parser = parsec;
     }
 }

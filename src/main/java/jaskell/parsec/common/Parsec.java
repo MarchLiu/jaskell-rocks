@@ -19,6 +19,7 @@ public interface Parsec<E, T> {
     return this.parse(s);
   }
 
+  @SuppressWarnings("unchecked")
   default T parse(String content) throws Throwable {
       State<Character> s = new TxtState(content);
       return ((Parsec<Character, T>)this).parse(s);
@@ -26,9 +27,9 @@ public interface Parsec<E, T> {
 
   default Try<T> exec(State<E> s) {
     try {
-      return new Try<>(Parsec.this.parse(s));
+      return Try.success(Parsec.this.parse(s));
     } catch (Throwable e) {
-      return new Try<>(e);
+      return Try.failure(e);
     }
   }
 
