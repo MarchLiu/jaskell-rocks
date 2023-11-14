@@ -4,12 +4,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+
 /**
- * TODO
- *
- * @author mars
- * @version 1.0.0
- * @since 2023/11/07 16:17
+ * Failure branch of Try
+ * @param err error error raised when try to get
+ * @param <T> type of scuccess
  */
 public record Failure<T>(Throwable err) implements Try<T> {
     @Override

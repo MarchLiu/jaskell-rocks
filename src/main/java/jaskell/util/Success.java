@@ -4,12 +4,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+
 /**
- * TODO
- *
- * @author mars
- * @version 1.0.0
- * @since 2023/11/07 15:08
+ * Success branch of Try
+ * @param item result
+ * @param <T> result's type
  */
 public record Success<T>(T item) implements Try<T> {
     @Override
