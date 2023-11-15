@@ -23,32 +23,32 @@ It includes a parsec combinators library , a SQL expressions library and a arith
 ### Gradle
 
 ```groovy
-implementation 'io.github.marchliu:jaskell-rocks:1.1.0'
+implementation 'io.github.marchliu:jaskell-rocks:1.1.1'
 ```
 
 ### Gradle Kotlin
 
 ```
-implementation("io.github.marchliu:jaskell-rocks:1.1.0")
+implementation("io.github.marchliu:jaskell-rocks:1.1.1")
 ```
 
 ### SBT
 
 ```sbtshell
-libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.0"
+libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.1"
 ```
 
 ### Apache Ivy
 
 ```xml
-<dependency org="io.github.marchliu" name="jaskell-rocks" rev="1.1.0" />
+<dependency org="io.github.marchliu" name="jaskell-rocks" rev="1.1.1" />
 ```
 
 ### Groovy Grap
 
 ```groovy
 @Grapes(
-  @Grab(group='io.github.marchliu', module='jaskell-rocks', version='1.1.0')
+  @Grab(group='io.github.marchliu', module='jaskell-rocks', version='1.1.1')
 )
 
 ```
@@ -56,13 +56,13 @@ libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.0"
 ### Leiningen
 
 ```clojure
-[io.github.marchliu/jaskell-rocks "2.0.1"]
+[io.github.marchliu/jaskell-rocks "1.1.1"]
 ```
 
 ### Apache Bluildr
 
 ```
-'io.github.marchliu:jaskell-rocks:jar:1.1.0'
+'io.github.marchliu:jaskell-rocks:jar:1.1.1'
 ```
 
 ### Maven Central Badge
@@ -74,7 +74,7 @@ libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.0"
 ### PURL
 
 ```
-pkg:maven/io.github.marchliu/jaskell-rocks@1.1.0
+pkg:maven/io.github.marchliu/jaskell-rocks@1.1.1
 ```
 
 
@@ -87,3 +87,8 @@ Fork from jaskell java8
 ### 1.1.0
 
 Add join map/flatmap (1 to 8) functions for try.
+
+### 1.1.1
+
+relax join map/flatMap type constraint
+

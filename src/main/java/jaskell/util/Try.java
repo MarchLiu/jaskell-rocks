@@ -43,7 +43,7 @@ public sealed interface Try<T> permits Failure, Success {
     <U> Try<U> flatMap(Function<? super T, Try<U>> mapper);
 
 
-    default <U, R> Try<R> map2(Try<U> other, BiFunction<? super T, ? super U, R> mapper) {
+    default <U, R> Try<? extends R> map2(Try<U> other, BiFunction<? super T, ? super U, ? extends R> mapper) {
         if (this.isErr()) {
             return new Failure<>(this.error());
         }
@@ -57,7 +57,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    default <U, R> Try<R> flatMap2(Try<U> other, BiFunction<? super T, ? super U, Try<R>> mapper) {
+    default <U, R> Try<? extends R> flatMap2(Try<U> other, BiFunction<? super T, ? super U, Try<? extends R>> mapper) {
         if (this.isErr()) {
             return new Failure<>(this.error());
         }
@@ -91,7 +91,7 @@ public sealed interface Try<T> permits Failure, Success {
         return new Failure<>(new Exception(message));
     }
 
-    static <T> Try<T> tryIt(Supplier<T> supplier) {
+    static <T> Try<T> tryIt(Supplier<? extends T> supplier) {
         try {
             return Try.success(supplier.get());
         } catch (Exception err) {
@@ -99,7 +99,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    static <T, U> Try<U> call(Function<T, U> func, T arg) {
+    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) {
         try {
             return Try.success(func.apply(arg));
         } catch (Exception err) {
@@ -109,15 +109,16 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect two Try items and then map the BiFunction
-     * @param t1 try item 1
-     * @param t2 try item 2
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <R> type of result at last
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <R>  type of result at last
      * @return return a Try include result of the biFunction
      */
-    static <T, U, R> Try<R> joinMap(Try<T> t1, Try<U> t2, BiFunction<T, U, R> func) {
+    static <T, U, R> Try<? extends R> joinMap(Try<T> t1, Try<U> t2, BiFunction<? super T, ? super U, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -129,15 +130,17 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect two Try items and then map to a BiFunction return Try
-     * @param t1 try item 1
-     * @param t2 try item 2
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <R>  type of result
      * @return return the flat map biFunction's result
      */
-    static <T, U, R> Try<R> joinFlatMap(Try<T> t1, Try<U> t2, BiFunction<T, U, Try<R>> func) {
+    static <T, U, R> Try<? extends R> joinFlatMap(Try<T> t1, Try<U> t2,
+                                                  BiFunction<? super T, ? super U, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -149,17 +152,19 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect three Try items and then map to a TriFunction
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <R>  type of result
      * @return return a Try include result of the triFunction
      */
-    static <T, U, V, R> Try<R> joinMap3(Try<T> t1, Try<U> t2, Try<V> t3, TriFunction<T, U, V, R> func) {
+    static <T, U, V, R> Try<? extends R> joinMap3(Try<T> t1, Try<U> t2, Try<V> t3,
+                                                  TriFunction<? super T, ? super U, ? super V, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -172,17 +177,19 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect three Try items and then flat map to a TriFunction return Try item
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <R> type of item included in function's result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <R>  type of item included in function's result
      * @return return Try result of the triFunction
      */
-    static <T, U, V, R> Try<R> joinFlatMap3(Try<T> t1, Try<U> t2, Try<V> t3, TriFunction<T, U, V, Try<R>> func) {
+    static <T, U, V, R> Try<? extends R> joinFlatMap3(Try<T> t1, Try<U> t2, Try<V> t3,
+                                                      TriFunction<? super T, ? super U, ? super V, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -195,19 +202,21 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect four Try items and then map to a Function4
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, R> Try<R> joinMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Function4<T, U, V, W, R> func) {
+    static <T, U, V, W, R> Try<? extends R> joinMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                     Function4<? super T, ? super U, ? super V, ? super W, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -221,20 +230,22 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect four Try items and then flat map to a Function4
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <R> type of the function's result include
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, R> Try<R> joinFlatMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                               Function4<T, U, V, W, Try<R>> func) {
+    static <T, U, V, W, R> Try<? extends R> joinFlatMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                         Function4<? super T, ? super U, ? super V, ? super W,
+                                                                 Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -248,22 +259,25 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect five Try items and then map to a Function5
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, R> Try<R> joinMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
-                                              Function5<T, U, V, W, X, R> func) {
+    static <T, U, V, W, X, R> Try<? extends R> joinMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
+                                                        Function5<? super T, ? super U, ? super V,
+                                                                ? super W, ? super X,
+                                                                ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -278,22 +292,24 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect five Try items and then flat map to a Function5
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <R> type of the function's result include
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, R> Try<R> joinFlatMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
-                                                  Function5<T, U, V, W, X, Try<R>> func) {
+    static <T, U, V, W, X, R> Try<? extends R> joinFlatMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
+                                                            Function5<? super T, ? super U, ? super V, ? super W, ? super X,
+                                                                    Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -308,24 +324,26 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect six Try items and then map to a Function6
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <Y> type of item 6
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <Y>  type of item 6
+     * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, Y, R> Try<R> joinMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
-                                                 Function6<T, U, V, W, X, Y, R> func) {
+    static <T, U, V, W, X, Y, R> Try<? extends R> joinMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
+                                                           Function6<? super T, ? super U, ? super V, ? super W,
+                                                                   ? super X, ? super Y, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -341,24 +359,27 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect six Try items and then flat map to a Function6
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <Y> type of item 6
-     * @param <R> type of the function's result include
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <Y>  type of item 6
+     * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, Y, R> Try<R> joinFlatMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
-                                                     Function6<T, U, V, W, X, Y, Try<R>> func) {
+    static <T, U, V, W, X, Y, R> Try<? extends R> joinFlatMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
+                                                               Function6<? super T, ? super U, ? super V,
+                                                                       ? super W, ? super X, ? super Y,
+                                                                       Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -374,27 +395,29 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect seven Try items and then map to a Function7
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
-     * @param t7 try item 6
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
+     * @param t7   try item 6
      * @param func the map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <Y> type of item 6
-     * @param <Z> type of item 7
-     * @param <R> type of result
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <Y>  type of item 6
+     * @param <Z>  type of item 7
+     * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, Y, Z, R> Try<R> joinMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                    Try<X> t5, Try<Y> t6, Try<Z> t7,
-                                                    Function7<T, U, V, W, X, Y, Z, R> func) {
+    static <T, U, V, W, X, Y, Z, R> Try<? extends R> joinMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                              Try<X> t5, Try<Y> t6, Try<Z> t7,
+                                                              Function7<? super T, ? super U, ? super V, ? super W,
+                                                                      ? super X, ? super Y, ? super Z, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -411,27 +434,30 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect seven Try items and then flat map to a Function7
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
-     * @param t7 try item 7
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
+     * @param t7   try item 7
      * @param func the flat map function
-     * @param <T> type of item 1
-     * @param <U> type of item 2
-     * @param <V> type of item 3
-     * @param <W> type of item 4
-     * @param <X> type of item 5
-     * @param <Y> type of item 6
-     * @param <Z> type of item 7
-     * @param <R> type of the function's result include
+     * @param <T>  type of item 1
+     * @param <U>  type of item 2
+     * @param <V>  type of item 3
+     * @param <W>  type of item 4
+     * @param <X>  type of item 5
+     * @param <Y>  type of item 6
+     * @param <Z>  type of item 7
+     * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, Y, Z, R> Try<R> joinFlatMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                        Try<X> t5, Try<Y> t6, Try<Z> t7,
-                                                        Function7<T, U, V, W, X, Y, Z, Try<R>> func) {
+    static <T, U, V, W, X, Y, Z, R> Try<? extends R> joinFlatMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                                  Try<X> t5, Try<Y> t6, Try<Z> t7,
+                                                                  Function7<? super T, ? super U, ? super V,
+                                                                          ? super W, ? super X, ? super Y,
+                                                                          ? super Z, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -448,29 +474,32 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect eight Try items and then map to a Function8
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
-     * @param t7 try item 7
-     * @param t8 try item 8
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
+     * @param t7   try item 7
+     * @param t8   try item 8
      * @param func the map function
-     * @param <S> type of item 1
-     * @param <T> type of item 2
-     * @param <U> type of item 3
-     * @param <V> type of item 4
-     * @param <W> type of item 5
-     * @param <X> type of item 6
-     * @param <Y> type of item 7
-     * @param <Z> type of item 8
-     * @param <R> type of result
+     * @param <S>  type of item 1
+     * @param <T>  type of item 2
+     * @param <U>  type of item 3
+     * @param <V>  type of item 4
+     * @param <W>  type of item 5
+     * @param <X>  type of item 6
+     * @param <Y>  type of item 7
+     * @param <Z>  type of item 8
+     * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <S, T, U, V, W, X, Y, Z, R> Try<R> joinMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
-                                                       Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
-                                                       Function8<S, T, U, V, W, X, Y, Z, R> func) {
+    static <S, T, U, V, W, X, Y, Z, R> Try<? extends R> joinMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
+                                                                 Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
+                                                                 Function8<? super S, ? super T, ? super U,
+                                                                         ? super V, ? super W, ? super X,
+                                                                         ? super Y, ? super Z, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -488,29 +517,33 @@ public sealed interface Try<T> permits Failure, Success {
 
     /**
      * Collect eight Try items and then flat map to a Function8
-     * @param t1 try item 1
-     * @param t2 try item 2
-     * @param t3 try item 3
-     * @param t4 try item 4
-     * @param t5 try item 5
-     * @param t6 try item 6
-     * @param t7 try item 7
-     * @param t8 try item 7
+     *
+     * @param t1   try item 1
+     * @param t2   try item 2
+     * @param t3   try item 3
+     * @param t4   try item 4
+     * @param t5   try item 5
+     * @param t6   try item 6
+     * @param t7   try item 7
+     * @param t8   try item 7
      * @param func the flat map function
-     * @param <S> type of item 1
-     * @param <T> type of item 2
-     * @param <U> type of item 3
-     * @param <V> type of item 4
-     * @param <W> type of item 5
-     * @param <X> type of item 6
-     * @param <Y> type of item 7
-     * @param <Z> type of item 8
-     * @param <R> type of the function's result include
+     * @param <S>  type of item 1
+     * @param <T>  type of item 2
+     * @param <U>  type of item 3
+     * @param <V>  type of item 4
+     * @param <W>  type of item 5
+     * @param <X>  type of item 6
+     * @param <Y>  type of item 7
+     * @param <Z>  type of item 8
+     * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <S, T, U, V, W, X, Y, Z, R> Try<R> joinFlatMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
-                                                           Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
-                                                           Function8<S, T, U, V, W, X, Y, Z, Try<R>> func) {
+    static <S, T, U, V, W, X, Y, Z, R> Try<? extends R> joinFlatMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
+                                                                     Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
+                                                                     Function8<? super S, ? super T, ? super U,
+                                                                             ? super V, ? super W, ? super X,
+                                                                             ? super Y, ? super Z,
+                                                                             Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
