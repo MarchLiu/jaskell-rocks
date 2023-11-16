@@ -92,3 +92,8 @@ Add join map/flatmap (1 to 8) functions for try.
 
 relax join map/flatMap type constraint
 
+### 1.2.0
+
+- add tryIt methods for function types
+- make Try Class final
+- functions cloud throw Throwable in apply call

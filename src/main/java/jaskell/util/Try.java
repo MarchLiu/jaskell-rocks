@@ -15,7 +15,7 @@ public sealed interface Try<T> permits Failure, Success {
 
     Try<T> recover(Function<Throwable, T> func);
 
-    Try<T> recoverToTry(Function<Throwable, Try<T>> func);
+    Try<T> recoverToTry(java.util.function.Function<Throwable, Try<T>> func);
 
     @SuppressWarnings("unchecked")
     T get() throws Throwable;
@@ -27,7 +27,7 @@ public sealed interface Try<T> permits Failure, Success {
     T orElseGet(Try<? extends T> other) throws Throwable;
 
     @SuppressWarnings("unchecked")
-    T getOr(Function<? super Throwable, ? extends T> other);
+    T getOr(Function<? super Throwable, ? extends T> other) throws Throwable;
 
     @SuppressWarnings("unchecked")
     T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable;
@@ -40,7 +40,7 @@ public sealed interface Try<T> permits Failure, Success {
     <U> Try<U> map(Function<T, U> mapper);
 
     @SuppressWarnings("unchecked")
-    <U> Try<U> flatMap(Function<? super T, Try<U>> mapper);
+    <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper);
 
 
     default <U, R> Try<? extends R> map2(Try<U> other, BiFunction<? super T, ? super U, ? extends R> mapper) {
@@ -99,7 +99,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) {
+    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Throwable{
         try {
             return Try.success(func.apply(arg));
         } catch (Exception err) {

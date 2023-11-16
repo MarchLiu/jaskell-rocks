@@ -1,7 +1,6 @@
 package jaskell.util;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 
@@ -31,7 +30,7 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public Try<T> recoverToTry(Function<Throwable, Try<T>> func) {
+    public Try<T> recoverToTry(java.util.function.Function<Throwable, Try<T>> func){
         return func.apply(err);
     }
 
@@ -51,7 +50,7 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public T getOr(Function<? super Throwable, ? extends T> other) {
+    public T getOr(Function<? super Throwable, ? extends T> other) throws Throwable {
         return other.apply(err);
     }
 
@@ -71,7 +70,7 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public <U> Try<U> flatMap(Function<? super T, Try<U>> mapper) {
+    public <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper) {
         return new Failure<>(err);
     }
 
