@@ -18,7 +18,7 @@ public class SepBy<E, T, Sep>
 
     @Override
     public List<T> parse(State<E> s)
-            throws Throwable {
+            throws Exception {
         List<T> re = new ArrayList<>();
         re.add(this.p.parse(s));
         var p = this.by.then(this.p);

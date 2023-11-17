@@ -10,7 +10,7 @@ public class Decimal implements Parsec<Character, String> {
 
   @Override
   public String parse(State<Character> s)
-          throws Throwable {
+          throws Exception {
     if (sign.exec(s).isOk()){
       return "-" + decimal.parse(s);
     } else {

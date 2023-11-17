@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AttemptTest extends Base {
 
     @Test
-    public void simple() throws Throwable {
+    public void simple() throws Exception {
         List<String> data = Arrays.asList("Hello", "World");
 
         State<String> state = new SimpleState<>(data);

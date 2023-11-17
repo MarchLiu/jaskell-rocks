@@ -17,7 +17,7 @@ public class Many1Test extends Base {
 
 
     @Test
-    public void fail() throws Throwable {
+    public void fail() throws Exception {
         State<Character> state = newState("ello");
 
         Many1<Character, Character> m = new Many1<>(
@@ -29,7 +29,7 @@ public class Many1Test extends Base {
     }
 
     @Test
-    public void one() throws Throwable {
+    public void one() throws Exception {
         Parsec<Character, String> m =
                 new Many1<>(new Eq<>('h')).bind(joining());
         State<Character> state1 = newState("hello");
@@ -38,7 +38,7 @@ public class Many1Test extends Base {
     }
 
     @Test
-    public void all() throws Throwable {
+    public void all() throws Exception {
         Parsec<Character, String> parser =
                 new Many1<>(new One<Character>()).bind(joining());
         State<Character> state1 = newState("hello");

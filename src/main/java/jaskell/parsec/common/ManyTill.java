@@ -20,7 +20,7 @@ public class ManyTill<E, T, L>
 
     @Override
     public List<T> parse(State<E> s)
-            throws Throwable {
+            throws Exception {
         List<T> re = new ArrayList<>();
         var tail = attempt(end);
         while (tail.exec(s) instanceof Failure<L>) {

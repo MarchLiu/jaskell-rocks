@@ -9,7 +9,7 @@ import java.util.function.Predicate;
  * @param err error error raised when try to get
  * @param <T> type of scuccess
  */
-public record Failure<T>(Throwable err) implements Try<T> {
+public record Failure<T>(Exception err) implements Try<T> {
     @Override
     public Try<T> or(Try<T> other) {
         return other;
@@ -21,21 +21,21 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public Try<T> recover(Function<Throwable, T> func) {
+    public Try<T> recover(Function<Exception, T> func) {
         try {
             return new Success<>(func.apply(err));
-        } catch (Throwable err){
+        } catch (Exception err){
             return new Failure<>(err);
         }
     }
 
     @Override
-    public Try<T> recoverToTry(java.util.function.Function<Throwable, Try<T>> func){
+    public Try<T> recoverToTry(java.util.function.Function<Exception, Try<T>> func){
         return func.apply(err);
     }
 
     @Override
-    public T get() throws Throwable {
+    public T get() throws Exception {
         throw err;
     }
 
@@ -45,17 +45,17 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public T orElseGet(Try<? extends T> other) throws Throwable {
+    public T orElseGet(Try<? extends T> other) throws Exception {
         return other.get();
     }
 
     @Override
-    public T getOr(Function<? super Throwable, ? extends T> other) throws Throwable {
+    public T getOr(Function<? super Exception, ? extends T> other) throws Exception {
         return other.apply(err);
     }
 
     @Override
-    public T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable {
+    public T getRecovery(Function<? super Exception, Try<? extends T>> other) throws Exception {
         return other.apply(err).get();
     }
 
@@ -85,7 +85,7 @@ public record Failure<T>(Throwable err) implements Try<T> {
     }
 
     @Override
-    public Throwable error() {
+    public Exception error() {
         return err;
     }
 }

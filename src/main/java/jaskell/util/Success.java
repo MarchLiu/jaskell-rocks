@@ -19,23 +19,23 @@ public record Success<T>(T item) implements Try<T> {
     public <U> Try<U> map(Function<T, U> mapper) {
         try {
             return new Success<>(mapper.apply(item));
-        } catch (Throwable err) {
+        } catch (Exception err) {
             return new Failure<>(err);
         }
     }
 
     @Override
-    public Try<T> recover(Function<Throwable, T> func) {
+    public Try<T> recover(Function<Exception, T> func) {
         return this;
     }
 
     @Override
-    public Try<T> recoverToTry(java.util.function.Function<Throwable, Try<T>> func) {
+    public Try<T> recoverToTry(java.util.function.Function<Exception, Try<T>> func) {
         return this;
     }
 
     @Override
-    public T get() throws Throwable {
+    public T get() throws Exception {
         return item;
     }
 
@@ -45,17 +45,17 @@ public record Success<T>(T item) implements Try<T> {
     }
 
     @Override
-    public T orElseGet(Try<? extends T> other) throws Throwable {
+    public T orElseGet(Try<? extends T> other) throws Exception {
         return item;
     }
 
     @Override
-    public T getOr(Function<? super Throwable, ? extends T> other) {
+    public T getOr(Function<? super Exception, ? extends T> other) {
         return item;
     }
 
     @Override
-    public T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable {
+    public T getRecovery(Function<? super Exception, Try<? extends T>> other) throws Exception {
         return item;
     }
 
@@ -85,7 +85,7 @@ public record Success<T>(T item) implements Try<T> {
     }
 
     @Override
-    public Throwable error() {
+    public Exception error() {
         return null;
     }
 }

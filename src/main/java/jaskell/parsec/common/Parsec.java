@@ -12,15 +12,15 @@ import java.util.List;
 @FunctionalInterface
 public interface Parsec<E, T> {
   T parse(State<E> s)
-          throws Throwable;
+          throws Exception;
 
-  default <C extends List<E>> T parse(C collection) throws Throwable {
+  default <C extends List<E>> T parse(C collection) throws Exception {
     State<E> s = new SimpleState<>(collection);
     return this.parse(s);
   }
 
   @SuppressWarnings("unchecked")
-  default T parse(String content) throws Throwable {
+  default T parse(String content) throws Exception {
       State<Character> s = new TxtState(content);
       return ((Parsec<Character, T>)this).parse(s);
   }
@@ -28,7 +28,7 @@ public interface Parsec<E, T> {
   default Try<T> exec(State<E> s) {
     try {
       return Try.success(Parsec.this.parse(s));
-    } catch (Throwable e) {
+    } catch (Exception e) {
       return Try.failure(e);
     }
   }
@@ -38,7 +38,7 @@ public interface Parsec<E, T> {
     return this.exec(s);
   }
 
-  default Try<T> exec(String content) throws Throwable {
+  default Try<T> exec(String content) throws Exception {
     State<Character> s = new TxtState(content);
     return ((Parsec<Character, T>)this).exec(s);
   }

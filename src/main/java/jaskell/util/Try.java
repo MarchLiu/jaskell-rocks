@@ -13,24 +13,24 @@ public sealed interface Try<T> permits Failure, Success {
 
     Try<T> or(Try<T> other);
 
-    Try<T> recover(Function<Throwable, T> func);
+    Try<T> recover(Function<Exception, T> func);
 
-    Try<T> recoverToTry(java.util.function.Function<Throwable, Try<T>> func);
+    Try<T> recoverToTry(java.util.function.Function<Exception, Try<T>> func);
 
     @SuppressWarnings("unchecked")
-    T get() throws Throwable;
+    T get() throws Exception;
 
     @SuppressWarnings("unchecked")
     T orElse(T other);
 
     @SuppressWarnings("unchecked")
-    T orElseGet(Try<? extends T> other) throws Throwable;
+    T orElseGet(Try<? extends T> other) throws Exception;
 
     @SuppressWarnings("unchecked")
-    T getOr(Function<? super Throwable, ? extends T> other) throws Throwable;
+    T getOr(Function<? super Exception, ? extends T> other) throws Exception;
 
     @SuppressWarnings("unchecked")
-    T getRecovery(Function<? super Throwable, Try<? extends T>> other) throws Throwable;
+    T getRecovery(Function<? super Exception, Try<? extends T>> other) throws Exception;
 
     boolean isOk();
 
@@ -52,7 +52,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
         try {
             return new Success<>(mapper.apply(this.get(), other.get()));
-        } catch (Throwable err) {
+        } catch (Exception err) {
             return new Failure<>(err);
         }
     }
@@ -66,7 +66,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
         try {
             return mapper.apply(this.get(), other.get());
-        } catch (Throwable err) {
+        } catch (Exception err) {
             return new Failure<>(err);
         }
     }
@@ -77,13 +77,13 @@ public sealed interface Try<T> permits Failure, Success {
     @SuppressWarnings("unchecked")
     boolean anyMatch(Predicate<T> test);
 
-    Throwable error();
+    Exception error();
 
     static <T> Try<T> success(T value) {
         return new Success<>(value);
     }
 
-    static <T> Try<T> failure(Throwable err) {
+    static <T> Try<T> failure(Exception err) {
         return new Failure<>(err);
     }
 
@@ -99,7 +99,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Throwable{
+    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Exception{
         try {
             return Try.success(func.apply(arg));
         } catch (Exception err) {
@@ -123,7 +123,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r1 = t1.get();
             var r2 = t2.get();
             return Try.success(func.apply(r1, r2));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -145,7 +145,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r1 = t1.get();
             var r2 = t2.get();
             return func.apply(r1, r2);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -170,7 +170,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r2 = t2.get();
             var r3 = t3.get();
             return Try.success(func.apply(r1, r2, r3));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -195,7 +195,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r2 = t2.get();
             var r3 = t3.get();
             return func.apply(r1, r2, r3);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -223,7 +223,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r3 = t3.get();
             var r4 = t4.get();
             return Try.success(func.apply(r1, r2, r3, r4));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -252,7 +252,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r3 = t3.get();
             var r4 = t4.get();
             return func.apply(r1, r2, r3, r4);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -285,7 +285,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r4 = t4.get();
             var r5 = t5.get();
             return Try.success(func.apply(r1, r2, r3, r4, r5));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -317,7 +317,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r4 = t4.get();
             var r5 = t5.get();
             return func.apply(r1, r2, r3, r4, r5);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -352,7 +352,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r5 = t5.get();
             var r6 = t6.get();
             return Try.success(func.apply(r1, r2, r3, r4, r5, r6));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -388,7 +388,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r5 = t5.get();
             var r6 = t6.get();
             return func.apply(r1, r2, r3, r4, r5, r6);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -427,7 +427,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r6 = t6.get();
             var r7 = t7.get();
             return Try.success(func.apply(r1, r2, r3, r4, r5, r6, r7));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -467,7 +467,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r6 = t6.get();
             var r7 = t7.get();
             return func.apply(r1, r2, r3, r4, r5, r6, r7);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -510,7 +510,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r7 = t7.get();
             var r8 = t8.get();
             return Try.success(func.apply(r1, r2, r3, r4, r5, r6, r7, r8));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }
@@ -554,7 +554,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r7 = t7.get();
             var r8 = t8.get();
             return func.apply(r1, r2, r3, r4, r5, r6, r7, r8);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return Try.failure(e);
         }
     }

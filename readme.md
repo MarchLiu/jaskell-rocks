@@ -96,4 +96,11 @@ relax join map/flatMap type constraint
 
 - add tryIt methods for function types
 - make Try Class final
-- functions cloud throw Throwable in apply call
+- functions cloud throw Exception in apply call
+
+### 1.3.0
+
+- replace throwable in method's signature to exception 
+- add confirm method to re triable function
+- add BiConsumer
+

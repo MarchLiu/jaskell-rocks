@@ -7,7 +7,7 @@ package jaskell.parsec.common;
 public class Crlf implements Parsec<Character, String> {
     @Override
     public String parse(State<Character> s)
-            throws Throwable {
+            throws Exception {
         new Ch('\r').parse(s);
         new Newline().parse(s);
         return "\r\n";

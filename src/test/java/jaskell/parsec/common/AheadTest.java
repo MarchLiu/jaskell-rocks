@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 public class AheadTest extends Base {
 
     @Test
-    public void simple() throws Throwable {
+    public void simple() throws Exception {
         State<Character> state = newState("this is a string data.");
         Parsec<Character, String> parser =
                 text("this").over(new Ahead<>(text(" is")));
@@ -29,7 +29,7 @@ public class AheadTest extends Base {
     }
 
     @Test
-    public void result() throws Throwable {
+    public void result() throws Exception {
         State<Character> state = newState("this is a string data.");
         Parsec<Character, String> parser =
                 text("this").then(space()).then(new Ahead<>(text("is")));
