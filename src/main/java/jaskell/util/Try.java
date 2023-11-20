@@ -1,6 +1,11 @@
 package jaskell.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.*;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 /**
  * TODO
@@ -17,29 +22,22 @@ public sealed interface Try<T> permits Failure, Success {
 
     Try<T> recoverToTry(java.util.function.Function<Exception, Try<T>> func);
 
-    @SuppressWarnings("unchecked")
     T get() throws Exception;
 
-    @SuppressWarnings("unchecked")
     T orElse(T other);
 
-    @SuppressWarnings("unchecked")
     T orElseGet(Try<? extends T> other) throws Exception;
 
-    @SuppressWarnings("unchecked")
     T getOr(Function<? super Exception, ? extends T> other) throws Exception;
 
-    @SuppressWarnings("unchecked")
     T getRecovery(Function<? super Exception, Try<? extends T>> other) throws Exception;
 
     boolean isOk();
 
     boolean isErr();
 
-    @SuppressWarnings("unchecked")
     <U> Try<U> map(Function<T, U> mapper);
 
-    @SuppressWarnings("unchecked")
     <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper);
 
 
@@ -99,7 +97,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Exception{
+    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Exception {
         try {
             return Try.success(func.apply(arg));
         } catch (Exception err) {
@@ -556,6 +554,110 @@ public sealed interface Try<T> permits Failure, Success {
             return func.apply(r1, r2, r3, r4, r5, r6, r7, r8);
         } catch (Exception e) {
             return Try.failure(e);
+        }
+    }
+
+    static <T> Try<List<T>> all(List<Try<T>> elements) {
+        List<T> result = new ArrayList<>();
+        for (Try<T> e : elements) {
+            if (e.isErr()) {
+                return Try.failure(e.error());
+            } else {
+                try {
+                    result.add(e.get());
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        return Try.success(result);
+    }
+
+    static <T> Try<T> any(List<Try<T>> elements) {
+        for (Try<T> e : elements) {
+            if (e.isOk()) {
+                try {
+                    return Try.success(e.get());
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        var item = elements.stream().filter(Try::isErr).findFirst();
+        return item.orElseGet(() -> Try.failure("empty list not include any success item"));
+    }
+
+    static <T> Try<List<T>> tryAll(List<Triable<T>> elements) {
+        return all(elements.stream().map(Triable::tryIt).toList());
+    }
+
+    static <T> Try<T> tryAny(List<Triable<T>> elements) {
+        Try<T> err = null;
+        for (var e : elements) {
+            var re = e.tryIt();
+            if (re.isOk()) {
+                return re;
+            } else {
+                err = re;
+            }
+        }
+        return Objects.requireNonNullElseGet(err, () -> Try.failure("empty list not include any success item"));
+    }
+
+    static <T> Try<List<T>> asyncAll(List<Triable<T>> elements) {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            var tasks = elements.stream()
+                    .map(e -> scope.fork(e::tryIt))
+                    .toList();
+
+            scope.join().throwIfFailed();
+            return all(tasks.stream()
+                    .map(StructuredTaskScope.Subtask::get)
+                    .toList());
+        } catch (Exception err) {
+            return Try.failure(err);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> Try<List<T>> asyncAll(List<Triable<T>> elements, Executor executor) {
+        List<CompletableFuture<Try<T>>> tasks = elements.stream()
+                .map(t -> CompletableFuture.supplyAsync(t::tryIt, executor))
+                .toList();
+        CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
+        tsa = tasks.toArray(tsa);
+        CompletableFuture.allOf(tsa);
+        List<Try<T>> results = tasks.stream().map((java.util.function.Function<CompletableFuture<Try<T>>, Try<T>>) arg -> {
+            try {
+                return arg.get();
+            } catch (Exception e){
+                return Try.failure(e);
+            }
+        }).collect(Collectors.toList());
+        return Try.all(results);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> Try<T> asyncAny(List<Triable<T>> elements, Executor executor) {
+        List<CompletableFuture<Try<T>>> tasks = elements.stream()
+                .map(t -> CompletableFuture.supplyAsync(t::tryIt, executor))
+                .toList();
+        CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
+
+        try {
+            T re = (T)CompletableFuture.anyOf(tsa).get();
+            return Try.success(re);
+        } catch (Exception e) {
+            return Try.failure(e);
+        }
+    }
+
+    static <T> Try<T> asyncAny(List<Triable<T>> elements) {
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Try<T>>()) {
+            elements.forEach(e -> scope.fork(e::tryIt));
+            return scope.join().result();
+        } catch (Exception err) {
+            return Try.failure(err);
         }
     }
 }

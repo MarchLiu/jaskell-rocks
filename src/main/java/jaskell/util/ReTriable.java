@@ -8,24 +8,21 @@ package jaskell.util;
  * @version 1.0.0
  * @since 2020/12/06 13:56
  */
-public class ReTriable<T> implements Supplier<T> {
+public class ReTriable<T> implements Supplier<T>, Triable<T> {
     private final Supplier<T> supplier;
     final private int times;
 
     private int rest = 0;
 
-    private BiConsumer<Exception, Integer> onErr;
+    private BiFunction<Exception, Integer, Integer> onErr;
 
     public ReTriable(Supplier<T> supplier) {
         this.supplier = supplier;
         times = 3;
         rest = 3;
         onErr = (err, rest) -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            Thread.sleep(1000);
+            return rest;
         };
     }
 
@@ -38,7 +35,7 @@ public class ReTriable<T> implements Supplier<T> {
             } catch (Exception err) {
                 e = err;
                 try {
-                    onErr.accept(err, rest);
+                    rest = onErr.apply(err, rest);
                 } catch (Exception exception) {
                     rest--;
                 }
@@ -52,7 +49,7 @@ public class ReTriable<T> implements Supplier<T> {
         }
     }
 
-    public Try<T> confirm() {
+    public Try<T> tryIt() {
         return Try.tryIt(this);
     }
 
@@ -62,7 +59,7 @@ public class ReTriable<T> implements Supplier<T> {
         this.rest = times;
     }
 
-    public ReTriable(Supplier<T> supplier, int times, BiConsumer<Exception, Integer> onErr) {
+    public ReTriable(Supplier<T> supplier, int times, BiFunction<Exception, Integer, Integer> onErr) {
         this.supplier = supplier;
         this.times = times;
         this.rest = times;
@@ -82,10 +79,13 @@ public class ReTriable<T> implements Supplier<T> {
     }
 
     public static <T> T times(int times, Supplier<T> supplier) throws Exception {
-        return times(times, supplier, (err, rest) -> Thread.sleep(1000));
+        return times(times, supplier, (err, rest) -> {
+            Thread.sleep(1000);
+            return rest;
+        });
     }
 
-    public static <T> T times(int times, Supplier<T> supplier, BiConsumer<Exception, Integer> onErr) throws Exception {
+    public static <T> T times(int times, Supplier<T> supplier, BiFunction<Exception, Integer, Integer> onErr) throws Exception {
         Exception e = null;
         int rest = times;
         while (rest > 0) {
@@ -94,7 +94,7 @@ public class ReTriable<T> implements Supplier<T> {
             } catch (Exception err) {
                 e = err;
                 try {
-                    onErr.accept(err, rest);
+                    rest = onErr.apply(err, rest);
                 } catch (Exception innerErr) {
                     rest--;
                 }
@@ -116,7 +116,7 @@ public class ReTriable<T> implements Supplier<T> {
         return new ReTriable<>(supplier, times);
     }
 
-    public static <T> ReTriable<T> retry(Supplier<T> supplier, int times, BiConsumer<Exception, Integer> onErr) {
+    public static <T> ReTriable<T> retry(Supplier<T> supplier, int times, BiFunction<Exception, Integer, Integer> onErr) {
         return new ReTriable<>(supplier, times, onErr);
     }
 

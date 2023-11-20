@@ -104,3 +104,14 @@ relax join map/flatMap type constraint
 - add confirm method to re triable function
 - add BiConsumer
 
+
+### 1.3.1
+
+now we can set rest in retry‘s on error handler
+
+### 1.4.0
+
+- add triable interface
+- now retriable type implement triable 
+- add all and any methods for try
+- add async all and any methods, use virtual thread or custom executor
