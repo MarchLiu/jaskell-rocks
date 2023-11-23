@@ -9,14 +9,13 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 2023/11/17 14:01
  */
-public interface BiConsumer<T, U> {
+public interface Consumer<T> {
     /**
      * Performs this operation on the given arguments.
      *
      * @param t the first input argument
-     * @param u the second input argument
      */
-    void accept(T t, U u) throws Exception;
+    void accept(T t) throws Exception;
 
     /**
      * Returns a composed {@code BiConsumer} that performs, in sequence, this
@@ -30,16 +29,13 @@ public interface BiConsumer<T, U> {
      * operation followed by the {@code after} operation
      * @throws NullPointerException if {@code after} is null
      */
-    default BiConsumer<T, U> andThen(BiConsumer<? super T, ? super U> after) throws Exception {
+    default Consumer<T> andThen(Consumer<? super T> after) throws Exception {
         Objects.requireNonNull(after);
 
-        return (l, r) -> {
-            accept(l, r);
-            after.accept(l, r);
+        return (x) -> {
+            accept(x);
+            after.accept(x);
         };
     }
 
-    default Consumer<U> curry(T t) {
-        return (U u) -> accept(t, u);
-    }
 }

@@ -1,6 +1,5 @@
 package jaskell.util;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 
@@ -75,8 +74,13 @@ public record Success<T>(T item) implements Try<T> {
     }
 
     @Override
-    public void foreach(Consumer<T> consumer) {
-        consumer.accept(item);
+    public Try<Void> foreach(Consumer<T> consumer) {
+        try {
+            consumer.accept(item);
+            return Try.success(null);
+        } catch (Exception err) {
+            return Try.failure(err);
+        }
     }
 
     @Override

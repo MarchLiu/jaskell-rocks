@@ -1,7 +1,6 @@
 package jaskell.util;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 
 /**
@@ -47,4 +46,25 @@ public interface Function4<T, U, V, W, R> {
             return Try.failure(e);
         }
     }
+
+    default R apply(Tuple4<T, U, V, W> tuple) throws Exception {
+        return apply(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3());
+    }
+
+    default Try<R> tryIt(Tuple4<T, U, V, W> tuple) {
+        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3());
+    }
+
+    default TriFunction<U, V, W, R> curry(T t) {
+        return (u, v, w) -> apply(t, u, v, w);
+    }
+
+    default BiFunction<V, W, R> curry(T t, U u) {
+        return (v, w) -> apply(t, u, v, w);
+    }
+
+    default Function<W, R> curry(T t, U u, V v) {
+        return w -> apply(t, u, v, w);
+    }
+
 }

@@ -115,3 +115,18 @@ now we can set rest in retry‘s on error handler
 - now retriable type implement triable 
 - add all and any methods for try
 - add async all and any methods, use virtual thread or custom executor
+
+### 1.4.1
+
+make try's join map methods return explicit type 
+
+### 1.5.0
+
+add tuple 2 to 8 and functor methods for them
+
+### 1.6.0
+
+- add curry methods for functionX
+- add liftA for tupleN
+- add apply for functionX
+- uncurry for tupleN

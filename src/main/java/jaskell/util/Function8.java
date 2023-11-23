@@ -1,7 +1,6 @@
 package jaskell.util;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 
 /**
@@ -32,8 +31,8 @@ public interface Function8<S, T, U, V, W, X, Y, Z, R> {
      * If evaluation of either function throws an exception, it is relayed to
      * the caller of the composed function.
      *
-     * @param <O> the type of output of the {@code after} function, and of the
-     *           composed function
+     * @param <O>   the type of output of the {@code after} function, and of the
+     *              composed function
      * @param after the function to apply after this function is applied
      * @return a composed function that first applies this function and then
      * applies the {@code after} function
@@ -47,8 +46,47 @@ public interface Function8<S, T, U, V, W, X, Y, Z, R> {
     default Try<R> tryIt(S s, T t, U u, V v, W w, X x, Y y, Z z) {
         try {
             return Try.success(apply(s, t, u, v, w, x, y, z));
-        } catch (Exception err){
+        } catch (Exception err) {
             return Try.failure(err);
         }
     }
+
+    default R apply(Tuple8<S, T, U, V, W, X, Y, Z> tuple) throws Exception {
+        return apply(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
+                tuple.item4(), tuple.item5(), tuple.item6(), tuple.item7());
+    }
+
+    default Try<R> tryIt(Tuple8<S, T, U, V, W, X, Y, Z> tuple) {
+        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
+                tuple.item4(), tuple.item5(), tuple.item6(), tuple.item7());
+    }
+
+    default Function7<T, U, V, W, X, Y, Z, R> curry(S s) {
+        return (t, u, v, w, x, y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default Function6<U, V, W, X, Y, Z, R> curry(S s, T t) {
+        return (u, v, w, x, y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default Function5<V, W, X, Y, Z, R> curry(S s, T t, U u) {
+        return (v, w, x, y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default Function4<W, X, Y, Z, R> curry(S s, T t, U u, V v) {
+        return (w, x, y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default TriFunction<X, Y, Z, R> curry(S s, T t, U u, V v, W w) {
+        return (x, y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default BiFunction<Y, Z, R> curry(S s, T t, U u, V v, W w, X x) {
+        return (y, z) -> apply(s, t, u, v, w, x, y, z);
+    }
+
+    default Function<Z, R> curry(S s, T t, U u, V v, W w, X x, Y y) {
+        return z -> apply(s, t, u, v, w, x, y, z);
+    }
+
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.function.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -40,8 +40,7 @@ public sealed interface Try<T> permits Failure, Success {
 
     <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper);
 
-
-    default <U, R> Try<? extends R> map2(Try<U> other, BiFunction<? super T, ? super U, ? extends R> mapper) {
+    default <U, R> Try<R> map2(Try<U> other, BiFunction<? super T, ? super U, ? extends R> mapper) {
         if (this.isErr()) {
             return new Failure<>(this.error());
         }
@@ -55,7 +54,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    default <U, R> Try<? extends R> flatMap2(Try<U> other, BiFunction<? super T, ? super U, Try<? extends R>> mapper) {
+    default <U, R> Try<R> flatMap2(Try<U> other, BiFunction<? super T, ? super U, Try<? extends R>> mapper) {
         if (this.isErr()) {
             return new Failure<>(this.error());
         }
@@ -63,14 +62,14 @@ public sealed interface Try<T> permits Failure, Success {
             return new Failure<>(other.error());
         }
         try {
-            return mapper.apply(this.get(), other.get());
+            return mapper.apply(this.get(), other.get()).map(a -> a);
         } catch (Exception err) {
             return new Failure<>(err);
         }
     }
 
     @SuppressWarnings("unchecked")
-    void foreach(Consumer<T> consumer);
+    Try<Void> foreach(Consumer<T> consumer);
 
     @SuppressWarnings("unchecked")
     boolean anyMatch(Predicate<T> test);
@@ -116,7 +115,7 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result at last
      * @return return a Try include result of the biFunction
      */
-    static <T, U, R> Try<? extends R> joinMap(Try<T> t1, Try<U> t2, BiFunction<? super T, ? super U, ? extends R> func) {
+    static <T, U, R> Try<R> joinMap(Try<T> t1, Try<U> t2, BiFunction<? super T, ? super U, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -137,12 +136,12 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return the flat map biFunction's result
      */
-    static <T, U, R> Try<? extends R> joinFlatMap(Try<T> t1, Try<U> t2,
-                                                  BiFunction<? super T, ? super U, Try<? extends R>> func) {
+    static <T, U, R> Try<R> joinFlatMap(Try<T> t1, Try<U> t2,
+                                        BiFunction<? super T, ? super U, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
-            return func.apply(r1, r2);
+            return func.apply(r1, r2).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -161,8 +160,8 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the triFunction
      */
-    static <T, U, V, R> Try<? extends R> joinMap3(Try<T> t1, Try<U> t2, Try<V> t3,
-                                                  TriFunction<? super T, ? super U, ? super V, ? extends R> func) {
+    static <T, U, V, R> Try<R> joinMap3(Try<T> t1, Try<U> t2, Try<V> t3,
+                                        TriFunction<? super T, ? super U, ? super V, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -186,13 +185,13 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of item included in function's result
      * @return return Try result of the triFunction
      */
-    static <T, U, V, R> Try<? extends R> joinFlatMap3(Try<T> t1, Try<U> t2, Try<V> t3,
-                                                      TriFunction<? super T, ? super U, ? super V, Try<? extends R>> func) {
+    static <T, U, V, R> Try<R> joinFlatMap3(Try<T> t1, Try<U> t2, Try<V> t3,
+                                            TriFunction<? super T, ? super U, ? super V, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
             var r3 = t3.get();
-            return func.apply(r1, r2, r3);
+            return func.apply(r1, r2, r3).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -213,8 +212,8 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, R> Try<? extends R> joinMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                     Function4<? super T, ? super U, ? super V, ? super W, ? extends R> func) {
+    static <T, U, V, W, R> Try<R> joinMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                           Function4<? super T, ? super U, ? super V, ? super W, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -241,15 +240,15 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, R> Try<? extends R> joinFlatMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                         Function4<? super T, ? super U, ? super V, ? super W,
-                                                                 Try<? extends R>> func) {
+    static <T, U, V, W, R> Try<R> joinFlatMap4(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                               Function4<? super T, ? super U, ? super V, ? super W,
+                                                       Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
             var r3 = t3.get();
             var r4 = t4.get();
-            return func.apply(r1, r2, r3, r4);
+            return func.apply(r1, r2, r3, r4).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -272,10 +271,10 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, R> Try<? extends R> joinMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
-                                                        Function5<? super T, ? super U, ? super V,
-                                                                ? super W, ? super X,
-                                                                ? extends R> func) {
+    static <T, U, V, W, X, R> Try<R> joinMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
+                                              Function5<? super T, ? super U, ? super V,
+                                                      ? super W, ? super X,
+                                                      ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -305,16 +304,16 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, R> Try<? extends R> joinFlatMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
-                                                            Function5<? super T, ? super U, ? super V, ? super W, ? super X,
-                                                                    Try<? extends R>> func) {
+    static <T, U, V, W, X, R> Try<R> joinFlatMap5(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5,
+                                                  Function5<? super T, ? super U, ? super V, ? super W, ? super X,
+                                                          Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
             var r3 = t3.get();
             var r4 = t4.get();
             var r5 = t5.get();
-            return func.apply(r1, r2, r3, r4, r5);
+            return func.apply(r1, r2, r3, r4, r5).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -339,9 +338,9 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, Y, R> Try<? extends R> joinMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
-                                                           Function6<? super T, ? super U, ? super V, ? super W,
-                                                                   ? super X, ? super Y, ? extends R> func) {
+    static <T, U, V, W, X, Y, R> Try<R> joinMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
+                                                 Function6<? super T, ? super U, ? super V, ? super W,
+                                                         ? super X, ? super Y, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -374,10 +373,10 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, Y, R> Try<? extends R> joinFlatMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
-                                                               Function6<? super T, ? super U, ? super V,
-                                                                       ? super W, ? super X, ? super Y,
-                                                                       Try<? extends R>> func) {
+    static <T, U, V, W, X, Y, R> Try<R> joinFlatMap6(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4, Try<X> t5, Try<Y> t6,
+                                                     Function6<? super T, ? super U, ? super V,
+                                                             ? super W, ? super X, ? super Y,
+                                                             Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -385,7 +384,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r4 = t4.get();
             var r5 = t5.get();
             var r6 = t6.get();
-            return func.apply(r1, r2, r3, r4, r5, r6);
+            return func.apply(r1, r2, r3, r4, r5, r6).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -412,10 +411,10 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <T, U, V, W, X, Y, Z, R> Try<? extends R> joinMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                              Try<X> t5, Try<Y> t6, Try<Z> t7,
-                                                              Function7<? super T, ? super U, ? super V, ? super W,
-                                                                      ? super X, ? super Y, ? super Z, ? extends R> func) {
+    static <T, U, V, W, X, Y, Z, R> Try<R> joinMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                    Try<X> t5, Try<Y> t6, Try<Z> t7,
+                                                    Function7<? super T, ? super U, ? super V, ? super W,
+                                                            ? super X, ? super Y, ? super Z, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -451,11 +450,11 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <T, U, V, W, X, Y, Z, R> Try<? extends R> joinFlatMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
-                                                                  Try<X> t5, Try<Y> t6, Try<Z> t7,
-                                                                  Function7<? super T, ? super U, ? super V,
-                                                                          ? super W, ? super X, ? super Y,
-                                                                          ? super Z, Try<? extends R>> func) {
+    static <T, U, V, W, X, Y, Z, R> Try<R> joinFlatMap7(Try<T> t1, Try<U> t2, Try<V> t3, Try<W> t4,
+                                                        Try<X> t5, Try<Y> t6, Try<Z> t7,
+                                                        Function7<? super T, ? super U, ? super V,
+                                                                ? super W, ? super X, ? super Y,
+                                                                ? super Z, Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -464,7 +463,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r5 = t5.get();
             var r6 = t6.get();
             var r7 = t7.get();
-            return func.apply(r1, r2, r3, r4, r5, r6, r7);
+            return func.apply(r1, r2, r3, r4, r5, r6, r7).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -493,11 +492,11 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of result
      * @return return a Try include result of the function
      */
-    static <S, T, U, V, W, X, Y, Z, R> Try<? extends R> joinMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
-                                                                 Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
-                                                                 Function8<? super S, ? super T, ? super U,
-                                                                         ? super V, ? super W, ? super X,
-                                                                         ? super Y, ? super Z, ? extends R> func) {
+    static <S, T, U, V, W, X, Y, Z, R> Try<R> joinMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
+                                                       Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
+                                                       Function8<? super S, ? super T, ? super U,
+                                                               ? super V, ? super W, ? super X,
+                                                               ? super Y, ? super Z, ? extends R> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -536,12 +535,12 @@ public sealed interface Try<T> permits Failure, Success {
      * @param <R>  type of the function's result include
      * @return return result of the function
      */
-    static <S, T, U, V, W, X, Y, Z, R> Try<? extends R> joinFlatMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
-                                                                     Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
-                                                                     Function8<? super S, ? super T, ? super U,
-                                                                             ? super V, ? super W, ? super X,
-                                                                             ? super Y, ? super Z,
-                                                                             Try<? extends R>> func) {
+    static <S, T, U, V, W, X, Y, Z, R> Try<R> joinFlatMap8(Try<S> t1, Try<T> t2, Try<U> t3, Try<V> t4,
+                                                           Try<W> t5, Try<X> t6, Try<Y> t7, Try<Z> t8,
+                                                           Function8<? super S, ? super T, ? super U,
+                                                                   ? super V, ? super W, ? super X,
+                                                                   ? super Y, ? super Z,
+                                                                   Try<? extends R>> func) {
         try {
             var r1 = t1.get();
             var r2 = t2.get();
@@ -551,7 +550,7 @@ public sealed interface Try<T> permits Failure, Success {
             var r6 = t6.get();
             var r7 = t7.get();
             var r8 = t8.get();
-            return func.apply(r1, r2, r3, r4, r5, r6, r7, r8);
+            return func.apply(r1, r2, r3, r4, r5, r6, r7, r8).map(a -> a);
         } catch (Exception e) {
             return Try.failure(e);
         }
@@ -630,7 +629,7 @@ public sealed interface Try<T> permits Failure, Success {
         List<Try<T>> results = tasks.stream().map((java.util.function.Function<CompletableFuture<Try<T>>, Try<T>>) arg -> {
             try {
                 return arg.get();
-            } catch (Exception e){
+            } catch (Exception e) {
                 return Try.failure(e);
             }
         }).collect(Collectors.toList());
@@ -645,7 +644,7 @@ public sealed interface Try<T> permits Failure, Success {
         CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
 
         try {
-            T re = (T)CompletableFuture.anyOf(tsa).get();
+            T re = (T) CompletableFuture.anyOf(tsa).get();
             return Try.success(re);
         } catch (Exception e) {
             return Try.failure(e);
@@ -660,4 +659,5 @@ public sealed interface Try<T> permits Failure, Success {
             return Try.failure(err);
         }
     }
+
 }

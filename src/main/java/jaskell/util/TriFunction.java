@@ -1,8 +1,6 @@
 package jaskell.util;
 
 import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 
 /**
@@ -46,5 +44,21 @@ public interface TriFunction<T, U, V, R> {
         } catch (Exception e) {
             return Try.failure(e);
         }
+    }
+
+    default R apply(Tuple3<T, U, V> tuple) throws Exception {
+        return apply(tuple.item0(), tuple.item1(), tuple.item2());
+    }
+
+    default Try<R> tryIt(Tuple3<T, U, V> tuple) {
+        return tryIt(tuple.item0(), tuple.item1(), tuple.item2());
+    }
+
+    default BiFunction<U, V, R> curry(T t) {
+        return (u, v) -> apply(t, u, v);
+    }
+
+    default Function<V, R> curry(T t, U u) {
+        return v -> apply(t, u, v);
     }
 }
