@@ -10,4 +10,7 @@ package jaskell.util;
 public interface Triable<T> {
     Try<T> tryIt();
 
+    default Supplier<Try<T>> lazy() {
+        return this::tryIt;
+    }
 }

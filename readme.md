@@ -130,3 +130,8 @@ add tuple 2 to 8 and functor methods for them
 - add liftA for tupleN
 - add apply for functionX
 - uncurry for tupleN
+
+### 1.6.1
+
+- cow methods for tuple
+- add item methods for tuple

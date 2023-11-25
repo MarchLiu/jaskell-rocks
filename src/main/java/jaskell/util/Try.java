@@ -1,6 +1,8 @@
 package jaskell.util;
 
+import java.nio.channels.ScatteringByteChannel;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
@@ -655,6 +657,25 @@ public sealed interface Try<T> permits Failure, Success {
         try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Try<T>>()) {
             elements.forEach(e -> scope.fork(e::tryIt));
             return scope.join().result();
+        } catch (Exception err) {
+            return Try.failure(err);
+        }
+    }
+
+    static <T> List<T> ifSuccess(List<Try<T>> elements) {
+        List<T> result = new ArrayList<>();
+        for (Try<T> element : elements) {
+            element.foreach(result::add);
+        }
+        return result;
+    }
+
+    static <T> Try<Void> foreach(List<Try<T>> elements, Consumer<T> consumer) {
+        try {
+            for (Try<T> element : elements) {
+                element.foreach(consumer);
+            }
+            return Try.success(null);
         } catch (Exception err) {
             return Try.failure(err);
         }
