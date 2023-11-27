@@ -2,6 +2,11 @@ package jaskell.util;
 
 import com.sun.source.tree.BreakTree;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Just Pair
  *
@@ -10,7 +15,7 @@ import com.sun.source.tree.BreakTree;
  * @param <T>
  * @param <U>
  */
-public record Tuple2<T, U>(T item0, U item1) {
+public record Tuple2<T, U>(T item0, U item1) implements Tuple<T, U, U, T> {
     public <R> R uncurry(BiFunction<T, U, R> functor) throws Exception {
         return functor.apply(item0(), item1());
     }
@@ -37,5 +42,39 @@ public record Tuple2<T, U>(T item0, U item1) {
 
     public static <T, U> Try<Tuple2<T, U>> liftA(Try<T> t0, Try<U> t1) {
         return Try.joinMap(t0, t1, Tuple2::new);
+    }
+
+    @Override
+    public Object get(int pos) throws IndexOutOfBoundsException {
+        return switch (pos) {
+            case 0 -> item0();
+            case 1 -> item1();
+            default -> throw new IndexOutOfBoundsException("tuple2 only accept 0 or 1 pos");
+        };
+    }
+
+    @Override
+    public int size() {
+        return 2;
+    }
+
+    @Override
+    public T head() {
+        return item0();
+    }
+
+    @Override
+    public U tail() {
+        return item1();
+    }
+
+    @Override
+    public U last() {
+        return item1();
+    }
+
+    @Override
+    public T butLast() {
+        return item0();
     }
 }

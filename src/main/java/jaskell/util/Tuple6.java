@@ -1,5 +1,9 @@
 package jaskell.util;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Just Pair
  *
@@ -8,7 +12,8 @@ package jaskell.util;
  * @param <T>
  * @param <U>
  */
-public record Tuple6<T, U, V, W, X, Y>(T item0, U item1, V item2, W item3, X item4, Y item5) {
+public record Tuple6<T, U, V, W, X, Y>(T item0, U item1, V item2, W item3, X item4, Y item5)
+        implements Tuple<T, Tuple5<U, V, W, X, Y>, Y, Tuple5<T, U, V, W, X>> {
     public <R> R uncurry(Function6<T, U, V, W, X, Y, R> functor) throws Exception {
         return functor.apply(item0(), item1(), item2(), item3(), item4(), item5());
     }
@@ -47,5 +52,42 @@ public record Tuple6<T, U, V, W, X, Y>(T item0, U item1, V item2, W item3, X ite
                                                                          Try<V> t2, Try<W> t3,
                                                                          Try<X> t4, Try<Y> t5) {
         return Try.joinMap6(t0, t1, t2, t3, t4, t5, Tuple6::new);
+    }
+
+    public Object get(int pos) throws IndexOutOfBoundsException {
+        return switch (pos) {
+            case 0 -> item0();
+            case 1 -> item1();
+            case 2 -> item2();
+            case 3 -> item3();
+            case 4 -> item4();
+            case 5 -> item5();
+            default -> throw new IndexOutOfBoundsException("tuple6 only accept pos in range [0, 5]");
+        };
+    }
+
+    @Override
+    public int size() {
+        return 6;
+    }
+
+    @Override
+    public T head() {
+        return item0();
+    }
+
+    @Override
+    public Tuple5<U, V, W, X, Y> tail() {
+        return new Tuple5<>(item1(), item2(), item3(), item4(), item5());
+    }
+
+    @Override
+    public Y last() {
+        return item5();
+    }
+
+    @Override
+    public Tuple5<T, U, V, W, X> butLast() {
+        return new Tuple5<>(item0(), item1(), item2(), item3(), item4());
     }
 }
