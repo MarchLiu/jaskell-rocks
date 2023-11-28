@@ -69,7 +69,7 @@ public record Failure<T>(Exception err) implements Try<T> {
     }
 
     @Override
-    public <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper) {
+    public <U> Try<U> flatMap(Function<? super T, Try<U>> mapper) {
         return new Failure<>(err);
     }
 

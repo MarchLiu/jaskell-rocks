@@ -69,8 +69,12 @@ public record Success<T>(T item) implements Try<T> {
     }
 
     @Override
-    public <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper) {
-        return mapper.apply(item);
+    public <U> Try<U> flatMap(Function<? super T, Try<U>> mapper) {
+        try {
+            return mapper.apply(item);
+        } catch (Exception e) {
+            return Try.failure(e);
+        }
     }
 
     @Override

@@ -40,7 +40,7 @@ public sealed interface Try<T> permits Failure, Success {
 
     <U> Try<U> map(Function<T, U> mapper);
 
-    <U> Try<U> flatMap(java.util.function.Function<? super T, Try<U>> mapper);
+    <U> Try<U> flatMap(Function<? super T, Try<U>> mapper);
 
     default <U, R> Try<R> map2(Try<U> other, BiFunction<? super T, ? super U, ? extends R> mapper) {
         if (this.isErr()) {

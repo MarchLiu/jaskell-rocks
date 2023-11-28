@@ -148,3 +148,7 @@ add tuple 2 to 8 and functor methods for them
   - get by pos method
   - toList method
   - toMap method
+
+### 1.6.3
+
+ - fixed flatmap error in try type
