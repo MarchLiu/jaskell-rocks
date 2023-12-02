@@ -152,3 +152,13 @@ add tuple 2 to 8 and functor methods for them
 ### 1.6.3
 
  - fixed flatmap error in try type
+
+### 1.7.0
+
+ - add methods for triable interface make it as lazy try
+   - joinMap
+   - joinFlatMap
+   - map
+   - flatMap accept argument typed Function\<T, Try\<U\>\>
+   - async methods
+ - triable collect method return try object

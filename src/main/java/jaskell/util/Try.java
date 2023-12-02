@@ -577,71 +577,54 @@ public sealed interface Try<T> permits Failure, Success {
     static <T> Try<T> any(List<Try<T>> elements) {
         for (Try<T> e : elements) {
             if (e.isOk()) {
-                try {
-                    return Try.success(e.get());
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
+                return e;
             }
         }
         var item = elements.stream().filter(Try::isErr).findFirst();
         return item.orElseGet(() -> Try.failure("empty list not include any success item"));
     }
 
-    static <T> Try<List<T>> tryAll(List<Triable<T>> elements) {
-        return all(elements.stream().map(Triable::tryIt).toList());
-    }
+    static <T> Future<Try<List<T>>> asyncAll(List<Triable<T>> elements) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+                var tasks = elements.stream()
+                        .map(e -> scope.fork(e::collect))
+                        .toList();
 
-    static <T> Try<T> tryAny(List<Triable<T>> elements) {
-        Try<T> err = null;
-        for (var e : elements) {
-            var re = e.tryIt();
-            if (re.isOk()) {
-                return re;
-            } else {
-                err = re;
+                scope.join().throwIfFailed();
+                return (all(tasks.stream()
+                        .map(StructuredTaskScope.Subtask::get)
+                        .toList()));
+            } catch (Exception err) {
+                return Try.failure(err);
             }
-        }
-        return Objects.requireNonNullElseGet(err, () -> Try.failure("empty list not include any success item"));
-    }
-
-    static <T> Try<List<T>> asyncAll(List<Triable<T>> elements) {
-        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-            var tasks = elements.stream()
-                    .map(e -> scope.fork(e::tryIt))
-                    .toList();
-
-            scope.join().throwIfFailed();
-            return all(tasks.stream()
-                    .map(StructuredTaskScope.Subtask::get)
-                    .toList());
-        } catch (Exception err) {
-            return Try.failure(err);
-        }
+        });
     }
 
     @SuppressWarnings("unchecked")
-    static <T> Try<List<T>> asyncAll(List<Triable<T>> elements, Executor executor) {
-        List<CompletableFuture<Try<T>>> tasks = elements.stream()
-                .map(t -> CompletableFuture.supplyAsync(t::tryIt, executor))
-                .toList();
-        CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
-        tsa = tasks.toArray(tsa);
-        CompletableFuture.allOf(tsa);
-        List<Try<T>> results = tasks.stream().map((java.util.function.Function<CompletableFuture<Try<T>>, Try<T>>) arg -> {
-            try {
-                return arg.get();
-            } catch (Exception e) {
-                return Try.failure(e);
-            }
-        }).collect(Collectors.toList());
-        return Try.all(results);
+    static <T> Future<Try<List<T>>> asyncAll(List<Triable<T>> elements, Executor executor) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<CompletableFuture<Try<T>>> tasks = elements.stream()
+                    .map(t -> CompletableFuture.supplyAsync(t::collect, executor))
+                    .toList();
+            CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
+            tsa = tasks.toArray(tsa);
+            CompletableFuture.allOf(tsa);
+            List<Try<T>> results = tasks.stream().map((java.util.function.Function<CompletableFuture<Try<T>>, Try<T>>) arg -> {
+                try {
+                    return arg.get();
+                } catch (Exception e) {
+                    return Try.failure(e);
+                }
+            }).collect(Collectors.toList());
+            return Try.all(results);
+        }, executor);
     }
 
     @SuppressWarnings("unchecked")
     static <T> Try<T> asyncAny(List<Triable<T>> elements, Executor executor) {
         List<CompletableFuture<Try<T>>> tasks = elements.stream()
-                .map(t -> CompletableFuture.supplyAsync(t::tryIt, executor))
+                .map(t -> CompletableFuture.supplyAsync(t::collect, executor))
                 .toList();
         CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
 
@@ -655,7 +638,7 @@ public sealed interface Try<T> permits Failure, Success {
 
     static <T> Try<T> asyncAny(List<Triable<T>> elements) {
         try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Try<T>>()) {
-            elements.forEach(e -> scope.fork(e::tryIt));
+            elements.forEach(e -> scope.fork(e::collect));
             return scope.join().result();
         } catch (Exception err) {
             return Try.failure(err);
