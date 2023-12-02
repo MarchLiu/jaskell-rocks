@@ -16,39 +16,39 @@ It includes a parsec combinators library , a SQL expressions library and a arith
 <dependency>
   <groupId>io.github.marchliu</groupId>
   <artifactId>jaskell-rocks</artifactId>
-  <version>1.1.0</version>
+  <version>1.7.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.marchliu:jaskell-rocks:1.1.1'
+implementation 'io.github.marchliu:jaskell-rocks:1.7.0'
 ```
 
 ### Gradle Kotlin
 
 ```
-implementation("io.github.marchliu:jaskell-rocks:1.1.1")
+implementation("io.github.marchliu:jaskell-rocks:1.7.0")
 ```
 
 ### SBT
 
 ```sbtshell
-libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.1"
+libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.7.0"
 ```
 
 ### Apache Ivy
 
 ```xml
-<dependency org="io.github.marchliu" name="jaskell-rocks" rev="1.1.1" />
+<dependency org="io.github.marchliu" name="jaskell-rocks" rev="1.7.0" />
 ```
 
 ### Groovy Grap
 
 ```groovy
 @Grapes(
-  @Grab(group='io.github.marchliu', module='jaskell-rocks', version='1.1.1')
+  @Grab(group='io.github.marchliu', module='jaskell-rocks', version='1.7.0')
 )
 
 ```
@@ -56,13 +56,13 @@ libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.1"
 ### Leiningen
 
 ```clojure
-[io.github.marchliu/jaskell-rocks "1.1.1"]
+[io.github.marchliu/jaskell-rocks "1.7.0"]
 ```
 
 ### Apache Bluildr
 
 ```
-'io.github.marchliu:jaskell-rocks:jar:1.1.1'
+'io.github.marchliu:jaskell-rocks:jar:1.7.0'
 ```
 
 ### Maven Central Badge
@@ -74,7 +74,7 @@ libraryDependencies += "io.github.marchliu" % "jaskell-rocks" % "1.1.1"
 ### PURL
 
 ```
-pkg:maven/io.github.marchliu/jaskell-rocks@1.1.1
+pkg:maven/io.github.marchliu/jaskell-rocks@1.7.0
 ```
 
 
