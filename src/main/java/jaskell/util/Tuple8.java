@@ -19,7 +19,7 @@ public record Tuple8<S, T, U, V, W, X, Y, Z>(S item0, T item1, U item2, V item3,
     }
 
     public <R> Try<R> tryIt(Function8<S, T, U, V, W, X, Y, Z, R> functor) throws Exception {
-        return functor.tryIt(item0(), item1(), item2(), item3(), item4(), item5(), item6(), item7());
+        return functor.collect(item0(), item1(), item2(), item3(), item4(), item5(), item6(), item7());
     }
 
     public <A> Tuple8<A, T, U, V, W, X, Y, Z> item0(A item) {

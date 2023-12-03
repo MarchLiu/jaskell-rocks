@@ -38,7 +38,7 @@ public interface TriFunction<T, U, V, R> {
         return (T t, U u, V v) -> after.apply(apply(t, u, v));
     }
 
-    default Try<R> tryIt(T t, U u, V v) {
+    default Try<R> collect(T t, U u, V v) {
         try {
             return Try.success(apply(t, u, v));
         } catch (Exception e) {
@@ -50,8 +50,8 @@ public interface TriFunction<T, U, V, R> {
         return apply(tuple.item0(), tuple.item1(), tuple.item2());
     }
 
-    default Try<R> tryIt(Tuple3<T, U, V> tuple) {
-        return tryIt(tuple.item0(), tuple.item1(), tuple.item2());
+    default Try<R> collect(Tuple3<T, U, V> tuple) {
+        return collect(tuple.item0(), tuple.item1(), tuple.item2());
     }
 
     default BiFunction<U, V, R> curry(T t) {

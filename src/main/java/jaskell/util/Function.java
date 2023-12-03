@@ -1,7 +1,5 @@
 package jaskell.util;
 
-import jaskell.sql.Func;
-
 /**
  * TODO
  *
@@ -12,7 +10,7 @@ import jaskell.sql.Func;
 public interface Function<T, U> {
     U apply(T arg) throws Exception;
 
-    default Try<U> tryIt(T arg) {
+    default Try<U> collect(T arg) {
         try {
             return Try.success(apply(arg));
         } catch (Exception err) {

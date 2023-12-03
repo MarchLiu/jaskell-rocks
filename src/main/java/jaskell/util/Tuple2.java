@@ -1,12 +1,5 @@
 package jaskell.util;
 
-import com.sun.source.tree.BreakTree;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Just Pair
  *
@@ -21,7 +14,7 @@ public record Tuple2<T, U>(T item0, U item1) implements Tuple<T, U, U, T> {
     }
 
     public <R> Try<R> tryIt(BiFunction<T, U, R> functor) throws Exception {
-        return functor.tryIt(item0(), item1());
+        return functor.collect(item0(), item1());
     }
 
     public <V> Tuple2<V, U> item0(V item) {

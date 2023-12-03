@@ -1,6 +1,7 @@
 package jaskell.util;
 
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 
 /**
@@ -66,6 +67,11 @@ public record Failure<T>(Exception err) implements Try<T> {
     @Override
     public boolean isErr() {
         return true;
+    }
+
+    @Override
+    public Stream<T> stream() {
+        return Stream.empty();
     }
 
     @Override

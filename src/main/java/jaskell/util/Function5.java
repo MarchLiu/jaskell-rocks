@@ -40,7 +40,7 @@ public interface Function5<T, U, V, W, X, R> {
         return (T t, U u, V v, W w, X x) -> after.apply(apply(t, u, v, w, x));
     }
 
-    default Try<R> tryIt(T t, U u, V v, W w, X x) {
+    default Try<R> collect(T t, U u, V v, W w, X x) {
         try {
             return Try.success(apply(t, u, v, w, x));
         } catch (Exception e) {
@@ -52,8 +52,8 @@ public interface Function5<T, U, V, W, X, R> {
         return apply(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(), tuple.item4());
     }
 
-    default Try<R> tryIt(Tuple5<T, U, V, W, X> tuple) {
-        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(), tuple.item4());
+    default Try<R> collect(Tuple5<T, U, V, W, X> tuple) {
+        return collect(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(), tuple.item4());
     }
 
     default Function4<U, V, W, X, R> curry(T t) {

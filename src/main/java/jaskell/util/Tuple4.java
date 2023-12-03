@@ -1,9 +1,5 @@
 package jaskell.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Just Pair
  * @param item0
@@ -18,7 +14,7 @@ public record Tuple4<T, U, V, W>(T item0, U item1, V item2, W item3)
     }
 
     public <R> Try<R> tryIt(Function4<T, U, V, W, R> functor) throws Exception {
-        return functor.tryIt(item0(), item1(), item2(), item3());
+        return functor.collect(item0(), item1(), item2(), item3());
     }
 
     public <X> Tuple4<X, U, V, W> item0(X item) {

@@ -39,7 +39,7 @@ public interface Function4<T, U, V, W, R> {
         return (T t, U u, V v, W w) -> after.apply(apply(t, u, v, w));
     }
 
-    default Try<R> tryIt(T t, U u, V v, W w) {
+    default Try<R> collect(T t, U u, V v, W w) {
         try {
             return Try.success(apply(t, u, v, w));
         } catch (Exception e) {
@@ -51,8 +51,8 @@ public interface Function4<T, U, V, W, R> {
         return apply(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3());
     }
 
-    default Try<R> tryIt(Tuple4<T, U, V, W> tuple) {
-        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3());
+    default Try<R> collect(Tuple4<T, U, V, W> tuple) {
+        return collect(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3());
     }
 
     default TriFunction<U, V, W, R> curry(T t) {

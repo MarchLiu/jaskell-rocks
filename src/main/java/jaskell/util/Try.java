@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * TODO
@@ -37,6 +38,8 @@ public sealed interface Try<T> permits Failure, Success {
     boolean isOk();
 
     boolean isErr();
+
+    Stream<T> stream();
 
     <U> Try<U> map(Function<T, U> mapper);
 

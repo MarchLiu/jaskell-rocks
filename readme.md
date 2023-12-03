@@ -162,3 +162,8 @@ add tuple 2 to 8 and functor methods for them
    - flatMap accept argument typed Function\<T, Try\<U\>\>
    - async methods
  - triable collect method return try object
+
+### 1.7.1
+
+- rename tryIt of Functions to collect 
+- add stream method for try

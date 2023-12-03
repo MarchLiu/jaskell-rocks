@@ -1,9 +1,5 @@
 package jaskell.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Just Pair
  *
@@ -19,7 +15,7 @@ public record Tuple6<T, U, V, W, X, Y>(T item0, U item1, V item2, W item3, X ite
     }
 
     public <R> Try<R> tryIt(Function6<T, U, V, W, X, Y, R> functor) throws Exception {
-        return functor.tryIt(item0(), item1(), item2(), item3(), item4(), item5());
+        return functor.collect(item0(), item1(), item2(), item3(), item4(), item5());
     }
 
     public <Z> Tuple6<Z, U, V, W, X, Y> item0(Z item) {

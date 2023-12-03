@@ -43,7 +43,7 @@ public interface Function8<S, T, U, V, W, X, Y, Z, R> {
         return (S s, T t, U u, V v, W w, X x, Y y, Z z) -> after.apply(apply(s, t, u, v, w, x, y, z));
     }
 
-    default Try<R> tryIt(S s, T t, U u, V v, W w, X x, Y y, Z z) {
+    default Try<R> collect(S s, T t, U u, V v, W w, X x, Y y, Z z) {
         try {
             return Try.success(apply(s, t, u, v, w, x, y, z));
         } catch (Exception err) {
@@ -56,8 +56,8 @@ public interface Function8<S, T, U, V, W, X, Y, Z, R> {
                 tuple.item4(), tuple.item5(), tuple.item6(), tuple.item7());
     }
 
-    default Try<R> tryIt(Tuple8<S, T, U, V, W, X, Y, Z> tuple) {
-        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
+    default Try<R> collect(Tuple8<S, T, U, V, W, X, Y, Z> tuple) {
+        return collect(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
                 tuple.item4(), tuple.item5(), tuple.item6(), tuple.item7());
     }
 

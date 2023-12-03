@@ -42,7 +42,7 @@ public interface Function7<T, U, V, W, X, Y, Z, R> {
         return (T t, U u, V v, W w, X x, Y y, Z z) -> after.apply(apply(t, u, v, w, x, y, z));
     }
 
-    default Try<R> tryIt(T t, U u, V v, W w, X x, Y y, Z z) {
+    default Try<R> collect(T t, U u, V v, W w, X x, Y y, Z z) {
         try {
             return Try.success(apply(t, u, v, w, x, y, z));
         } catch (Exception e) {
@@ -55,8 +55,8 @@ public interface Function7<T, U, V, W, X, Y, Z, R> {
                 tuple.item4(), tuple.item5(), tuple.item6());
     }
 
-    default Try<R> tryIt(Tuple7<T, U, V, W, X, Y, Z> tuple) {
-        return tryIt(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
+    default Try<R> collect(Tuple7<T, U, V, W, X, Y, Z> tuple) {
+        return collect(tuple.item0(), tuple.item1(), tuple.item2(), tuple.item3(),
                 tuple.item4(), tuple.item5(), tuple.item6());
     }
 
