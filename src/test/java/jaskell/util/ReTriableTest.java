@@ -55,4 +55,6 @@ public class ReTriableTest {
         assertThrowsExactly(Exception.class, box::get);
         assertEquals(0, box.getRest());
     }
+
+
 }

@@ -1,11 +1,10 @@
 package jaskell.util;
 
-import java.nio.channels.ScatteringByteChannel;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +33,37 @@ public sealed interface Try<T> permits Failure, Success {
     T getOr(Function<? super Exception, ? extends T> other) throws Exception;
 
     T getRecovery(Function<? super Exception, Try<? extends T>> other) throws Exception;
+
+    default Try<T> onFailure(Consumer<Exception> consumer) {
+        return Try.tryIt(() -> switch (this) {
+            case Success<T> s -> this.get();
+            case Failure(var error) -> {
+                consumer.accept(error);
+                throw error;
+            }
+        });
+    }
+
+    default Try<T> mapError(Function<Exception, Exception> mapper) {
+        return Try.tryIt(() -> switch (this) {
+            case Success<T> s -> this.get();
+            case Failure(var error) -> {
+                throw mapper.apply(error);
+            }
+        });
+    }
+
+    default Try<T> onSuccess(Consumer<T> consumer) {
+        return Try.tryIt(() -> switch (this) {
+            case Success(var re) -> {
+                consumer.accept(re);
+                yield re;
+            }
+            case Failure(var error) -> {
+                throw error;
+            }
+        });
+    }
 
     boolean isOk();
 
@@ -101,7 +131,7 @@ public sealed interface Try<T> permits Failure, Success {
         }
     }
 
-    static <T, U> Try<? extends U> call(Function<? super T, ? extends U> func, T arg) throws Exception {
+    static <T, U> Try<? extends U> apply(Function<? super T, ? extends U> func, T arg) {
         try {
             return Try.success(func.apply(arg));
         } catch (Exception err) {
@@ -589,18 +619,20 @@ public sealed interface Try<T> permits Failure, Success {
 
     static <T> Future<Try<List<T>>> asyncAll(List<Triable<T>> elements) {
         return CompletableFuture.supplyAsync(() -> {
-            try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-                var tasks = elements.stream()
-                        .map(e -> scope.fork(e::collect))
-                        .toList();
-
-                scope.join().throwIfFailed();
-                return (all(tasks.stream()
-                        .map(StructuredTaskScope.Subtask::get)
-                        .toList()));
-            } catch (Exception err) {
-                return Try.failure(err);
-            }
+            List<CompletableFuture<Try<T>>> tasks = elements.stream()
+                    .map(t -> CompletableFuture.supplyAsync(t::collect))
+                    .toList();
+            CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
+            tsa = tasks.toArray(tsa);
+            CompletableFuture.allOf(tsa);
+            List<Try<T>> results = tasks.stream().map((java.util.function.Function<CompletableFuture<Try<T>>, Try<T>>) arg -> {
+                try {
+                    return arg.get();
+                } catch (Exception e) {
+                    return Try.failure(e);
+                }
+            }).collect(Collectors.toList());
+            return Try.all(results);
         });
     }
 
@@ -640,11 +672,16 @@ public sealed interface Try<T> permits Failure, Success {
     }
 
     static <T> Try<T> asyncAny(List<Triable<T>> elements) {
-        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Try<T>>()) {
-            elements.forEach(e -> scope.fork(e::collect));
-            return scope.join().result();
-        } catch (Exception err) {
-            return Try.failure(err);
+        List<CompletableFuture<Try<T>>> tasks = elements.stream()
+                .map(t -> CompletableFuture.supplyAsync(t::collect))
+                .toList();
+        CompletableFuture<Try<T>>[] tsa = new CompletableFuture[tasks.size()];
+
+        try {
+            T re = (T) CompletableFuture.anyOf(tsa).get();
+            return Try.success(re);
+        } catch (Exception e) {
+            return Try.failure(e);
         }
     }
 

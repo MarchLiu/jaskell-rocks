@@ -167,3 +167,15 @@ add tuple 2 to 8 and functor methods for them
 
 - rename tryIt of Functions to collect 
 - add stream method for try
+
+### 1.8.0
+
+- add some default methods for Parsec interface
+  - attempt
+  - ahead
+  - many
+  - many1
+  - sepBy
+  - sepBy1
+  - manyTill
+- add Arguments Parser for Command Line

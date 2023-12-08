@@ -21,7 +21,6 @@ public class Croupier<T> {
 
     public Croupier(Random random) {
         this.poker = new FairPoker<T>(random);
-
     }
 
     public Croupier(long seed) {

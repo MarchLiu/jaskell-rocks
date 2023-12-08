@@ -22,7 +22,7 @@ public class ManyTill<E, T, L>
     public List<T> parse(State<E> s)
             throws Exception {
         List<T> re = new ArrayList<>();
-        var tail = attempt(end);
+        var tail = end.attempt();
         while (tail.exec(s) instanceof Failure<L>) {
             re.add(parser.parse(s));
         }

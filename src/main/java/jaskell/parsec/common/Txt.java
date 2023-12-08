@@ -89,6 +89,14 @@ public class Txt {
         return new SkipSpaces();
     }
 
+    public static Parsec<Character, String> spaces() {
+        return new Many<>(space()).bind(joinChars());
+    }
+
+    public static Parsec<Character, String> spaces1() {
+        return new Many1<>(space()).bind(joinChars());
+    }
+
     public static SkipWhitespaces skipWhiteSpaces() {
         return new SkipWhitespaces();
     }
