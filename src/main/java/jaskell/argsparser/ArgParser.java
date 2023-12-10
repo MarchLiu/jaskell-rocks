@@ -25,10 +25,16 @@ public class ArgParser {
     private final Map<String, String> synonyms = new HashMap<>();
 
     private String header;
+    private String formatter = "%1$-20s %2$-20s %3$-40s\n";
+    private String footer;
 
     public Try<Result> parse(String[] args) {
         List<String> buffer = Arrays.asList(args);
         List<Exception> errors = new ArrayList<>();
+        if (buffer.stream().anyMatch(s -> s.equals("--help") || s.equals("-h") || s.equals("-?"))) {
+            withes.add("help");
+            return Try.success(result());
+        }
         while (!buffer.isEmpty()) {
             String head = buffer.getFirst();
             String word = head;
@@ -118,11 +124,20 @@ public class ArgParser {
     }
 
     public String getHeader() {
-        return header;
+        return Objects.requireNonNullElse(header, "");
     }
 
-    public ArgParser header(String header) {
-        this.header = header;
+    public ArgParser header(String value) {
+        this.header = value;
+        return this;
+    }
+
+    public String getFooter() {
+        return Objects.requireNonNullElse(footer, "");
+    }
+
+    public ArgParser footer(String value) {
+        this.footer = value;
         return this;
     }
 
@@ -262,12 +277,23 @@ public class ArgParser {
         return this;
     }
 
+    public ArgParser formatter(String value) {
+        this.formatter = value;
+        return this;
+    }
+
     String synonymString(String word) {
-        return synonyms.entrySet().stream()
-                .filter(entry -> {
-                    return entry.getValue().equals(word);
-                }).map(Map.Entry::getKey)
-                .collect(Collectors.joining(", "));
+        if(synonyms.values().contains(word)) {
+            return synonyms.entrySet().stream()
+                    .filter(entry -> entry.getValue().equals(word)).map(Map.Entry::getKey)
+                    .collect(Collectors.joining(", "));
+        } else {
+            return "";
+        }
+    }
+
+    public String getFormatter() {
+        return formatter;
     }
 
     public static ArgParser create() {
@@ -322,6 +348,9 @@ public class ArgParser {
 
     public interface Result {
         ArgParser parser();
+        default boolean isHelp() {
+            return parser().withes.contains("help");
+        }
 
         default boolean hasOption(String name) {
             var slot = parser().options;
@@ -352,7 +381,7 @@ public class ArgParser {
             if (slot.containsKey(name)) {
                 return Try.success(slot.get(name));
             } else {
-                return Try.failure(new Exception("parameter %s not found".formatted(name) ));
+                return Try.failure(new Exception("parameter %s not found".formatted(name)));
             }
         }
 
@@ -366,7 +395,7 @@ public class ArgParser {
             if (slot.containsKey(name)) {
                 return Try.success(slot.get(name));
             } else {
-                return Try.failure(new Exception("switch %s not found".formatted(name) ));
+                return Try.failure(new Exception("switch %s not found".formatted(name)));
             }
         }
 
@@ -378,22 +407,47 @@ public class ArgParser {
             return parser().varargs;
         }
 
-        default List<Tuple3<String, String, String>> help() {
-            List<Tuple3<String, String, String>> doc = new ArrayList<>();
-            doc.add(Tuple.tuple("", "", parser().header));
+        default String help() {
+
+            StringBuilder sb = new StringBuilder();
+            if (!parser().getHeader().isBlank()) {
+                sb.append(parser().getHeader()).append("\n");
+            }
             for (var slot : parser().optionSlot.values()) {
-                doc.add(Tuple.tuple(slot.argString(), parser().synonymString(slot.getName()), slot.getHelp()));
+                sb.append(parser().formatter.formatted(slot.argString(),
+                        parser().synonymString(slot.getName()),
+                        slot.getHelp()));
             }
             for (var slot : parser().parameterSlot.values()) {
-                doc.add(Tuple.tuple(slot.argString(), parser().synonymString(slot.getName()), slot.getHelp()));
+                sb.append(parser().formatter.formatted(slot.argString(),
+                        parser().synonymString(slot.getName()),
+                        slot.getHelp()));
             }
             for (var slot : parser().withSlot.values()) {
-                doc.add(Tuple.tuple(slot.argString(), parser().synonymString(slot.getName()), slot.getHelp()));
+                sb.append(parser().formatter.formatted(slot.argString(),
+                        parser().synonymString(slot.getName()),
+                        slot.getHelp()));
             }
             for (var slot : parser().switchSlot.values()) {
-                doc.add(Tuple.tuple(slot.argString(), parser().synonymString(slot.getName()), slot.getHelp()));
+                sb.append(parser().formatter.formatted(slot.argString(),
+                        parser().synonymString(slot.getName()),
+                        slot.getHelp()));
             }
-            return doc;
+            if(!parser().getFooter().isBlank()) {
+                sb.append(parser().getFooter()).append("\n");
+            }
+            return sb.toString();
+        }
+
+        default void printHelp() {
+            System.out.println(help());
+        }
+
+        default void autoHelp() {
+            if (isHelp()) {
+                printHelp();
+                System.exit(0);
+            }
         }
     }
 }

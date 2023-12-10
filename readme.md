@@ -179,3 +179,15 @@ add tuple 2 to 8 and functor methods for them
   - sepBy1
   - manyTill
 - add Arguments Parser for Command Line
+
+### 1.8.1
+
+- fixed bugs when help of args parser
+- add auto help and exit method
+- add formatter settings for args parser
+
+### 1.8.2
+
+- args parser
+  - the getter return empty string if header is null
+  - add footer
