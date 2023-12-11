@@ -191,3 +191,13 @@ add tuple 2 to 8 and functor methods for them
 - args parser
   - the getter return empty string if header is null
   - add footer
+
+### 1.8.3
+
+- with option could preset or unset
+- add parser method for preset and unset
+- simplify validator design
+
+### 1.8.4
+
+Exception's message typo

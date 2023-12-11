@@ -6,7 +6,7 @@
 
     <groupId>io.github.marchliu</groupId>
     <artifactId>jaskell-rocks</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.4</version>
     <packaging>jar</packaging>
     <name>io.github.marchliu:jaskell-rocks</name>
 

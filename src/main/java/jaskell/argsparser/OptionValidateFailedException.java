@@ -1,13 +1,13 @@
 package jaskell.argsparser;
 
-public class ValidateFailedException extends Exception {
+public class OptionValidateFailedException extends Exception {
     private final String name;
     private final String value;
     private final String type;
     private final String help;
 
 
-    public ValidateFailedException(String type, String name, String value, String help) {
+    public OptionValidateFailedException(String type, String name, String value, String help) {
         super("%s named %s has invalidate value %s: %s"
                 .formatted(type, name, value, help));
         this.name = name;

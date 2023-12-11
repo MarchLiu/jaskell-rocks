@@ -10,11 +10,11 @@ public class Option implements Arg {
     private final String name;
     private String defaultValue;
     private String help;
-    private BiFunction<String, TreeSet<String>, Boolean> validator;
+    private Predicate<String> validator;
     private boolean required;
 
     public Option(String name, String defaultValue, String help, boolean required,
-                  BiFunction<String, TreeSet<String>, Boolean> validator) {
+                  Predicate<String> validator) {
         this.name = name;
         this.defaultValue = defaultValue;
         this.help = help;
@@ -43,7 +43,7 @@ public class Option implements Arg {
         return required;
     }
 
-    public BiFunction<String, TreeSet<String>, Boolean> getValidator() {
+    public Predicate<String> getValidator() {
         return validator;
     }
 
@@ -57,15 +57,14 @@ public class Option implements Arg {
         return this;
     }
 
-    public Option validator(BiFunction<String, TreeSet<String>, Boolean> validator) {
+    public Option validator(Predicate<String> validator) {
         this.validator = validator;
         return this;
     }
 
     public Option validator(String regex) {
         Pattern compiled = Pattern.compile(regex);
-        var validator = compiled.asMatchPredicate();
-        this.validator = (value, values) -> validator.test(value);
+        this.validator = compiled.asMatchPredicate();
         return this;
     }
 
@@ -74,12 +73,12 @@ public class Option implements Arg {
         return this;
     }
 
-    public boolean validate(String value, TreeSet<String> values) {
-        return this.validator.apply(value, values);
+    public boolean validate(String value) {
+        return this.validator.test(value);
     }
 
     public static Option create(String name) {
-        return new Option(name, null, null, false, (s, ss) -> true);
+        return new Option(name, null, null, false, s -> true);
     }
 
 }

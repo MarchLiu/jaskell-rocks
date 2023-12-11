@@ -1,8 +1,6 @@
 package jaskell.argsparser;
 
 import jaskell.util.Try;
-import jaskell.util.Tuple;
-import jaskell.util.Tuple3;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,12 +25,13 @@ public class ArgParser {
     private String header;
     private String formatter = "%1$-20s %2$-20s %3$-40s\n";
     private String footer;
+    private boolean isHelp = false;
 
     public Try<Result> parse(String[] args) {
         List<String> buffer = Arrays.asList(args);
         List<Exception> errors = new ArrayList<>();
         if (buffer.stream().anyMatch(s -> s.equals("--help") || s.equals("-h") || s.equals("-?"))) {
-            withes.add("help");
+            isHelp = true;
             return Try.success(result());
         }
         while (!buffer.isEmpty()) {
@@ -57,7 +56,14 @@ public class ArgParser {
                     errors.add(result.error());
                 }
             } else if (word.startsWith("--with-")) {
-                var result = putWith(word);
+                var result = setWith(word);
+                if (result.isOk()) {
+                    buffer = buffer.subList(1, buffer.size());
+                } else {
+                    errors.add(result.error());
+                }
+            } else if (word.startsWith("--without-")) {
+                var result = unsetWith(word);
                 if (result.isOk()) {
                     buffer = buffer.subList(1, buffer.size());
                 } else {
@@ -179,12 +185,12 @@ public class ArgParser {
                     .recoverToTry(err -> Try.failure(new NotExistsException("option", label, name)))
                     .flatMap(option -> {
                         var values = options.getOrDefault(label, new TreeSet<>());
-                        if (option.validate(value, values)) {
+                        if (option.validate(value)) {
                             values.add(value);
                             options.put(label, values);
                             return Try.success(label);
                         } else {
-                            return Try.failure(new ValidateFailedException("option", name, value, option.getHelp()));
+                            return Try.failure(new OptionValidateFailedException("option", name, value, option.getHelp()));
                         }
                     });
         } else {
@@ -192,14 +198,26 @@ public class ArgParser {
         }
     }
 
-    Try<String> putWith(String name) {
+    Try<String> setWith(String name) {
         // size of "--with-" is 7
         var label = name.substring(7);
         if (parser().hasWith(label)) {
+            var slot = withSlot.get(label);
             withes.add(label);
             return Try.success(label);
         } else {
-            return Try.failure(new NotExistsException("switch", label, name));
+            return Try.failure(new NotExistsException("with", label, name));
+        }
+    }
+
+    Try<String> unsetWith(String name) {
+        // size of "--without-" is 10
+        var label = name.substring(10);
+        if (parser().hasWith(label)) {
+            withes.remove(label);
+            return Try.success(label);
+        } else {
+            return Try.failure(new NotExistsException("without", label, name));
         }
     }
 
@@ -212,7 +230,7 @@ public class ArgParser {
                 parameters.put(slot.getName(), value);
                 return Try.success(value);
             } else {
-                return Try.failure(new ValidateFailedException("varargs",
+                return Try.failure(new OptionValidateFailedException("varargs",
                         "%s at (%d)".formatted(slot.getName(), index),
                         value,
                         slot.getHelp()));
@@ -226,10 +244,7 @@ public class ArgParser {
     }
 
     public ArgParser() {
-        this.with(WithOption.create("help").help("show this document").argString("--help"));
-        this.synonyms.put("--help", "--with-help");
-        this.synonyms.put("-h", "--with-help");
-        this.synonyms.put("-?", "--with-help");
+
     }
 
     public ArgParser synonyms(String word, String target) {
@@ -267,6 +282,18 @@ public class ArgParser {
         return this;
     }
 
+    public ArgParser presetWith(String name) {
+        withSlot.put(name, WithOption.create(name).preset());
+        withes.add(name);
+        return this;
+    }
+
+    public ArgParser presetWith(WithOption with) {
+        withSlot.put(with.getName(), with.preset());
+        withes.add(with.getName());
+        return this;
+    }
+
     public ArgParser onoff(String name) {
         switchSlot.put(name, SwitchOption.create(name));
         return this;
@@ -277,13 +304,53 @@ public class ArgParser {
         return this;
     }
 
+    public ArgParser preset(String name) {
+        var wOpt = WithOption.create(name).preset();
+        withSlot.put(wOpt.getName(), wOpt);
+        withes.add(wOpt.getName());
+        return this;
+    }
+
+    public ArgParser preset(String name, String help) {
+        var wOpt = WithOption.create(name).help(help).preset();
+        withSlot.put(wOpt.getName(), wOpt);
+        withes.add(wOpt.getName());
+        return this;
+    }
+
+    public ArgParser preset(WithOption wOpt) {
+        withSlot.put(wOpt.getName(), wOpt.preset());
+        withes.add(wOpt.getName());
+        return this;
+    }
+
+    public ArgParser unset(String name) {
+        var wOpt = WithOption.create(name).unset();
+        withSlot.put(name, wOpt);
+        withes.remove(name);
+        return this;
+    }
+
+    public ArgParser unset(WithOption wOpt) {
+        withSlot.put(wOpt.getName(), wOpt.unset());
+        withes.remove(wOpt.getName());
+        return this;
+    }
+
+    public ArgParser unset(String name, String help) {
+        var wOpt = WithOption.create(name).help(help).unset();
+        withSlot.put(name, wOpt);
+        withes.remove(name);
+        return this;
+    }
+
     public ArgParser formatter(String value) {
         this.formatter = value;
         return this;
     }
 
     String synonymString(String word) {
-        if(synonyms.values().contains(word)) {
+        if (synonyms.containsValue(word)) {
             return synonyms.entrySet().stream()
                     .filter(entry -> entry.getValue().equals(word)).map(Map.Entry::getKey)
                     .collect(Collectors.joining(", "));
@@ -348,8 +415,9 @@ public class ArgParser {
 
     public interface Result {
         ArgParser parser();
+
         default boolean isHelp() {
-            return parser().withes.contains("help");
+            return parser().isHelp;
         }
 
         default boolean hasOption(String name) {
@@ -433,7 +501,7 @@ public class ArgParser {
                         parser().synonymString(slot.getName()),
                         slot.getHelp()));
             }
-            if(!parser().getFooter().isBlank()) {
+            if (!parser().getFooter().isBlank()) {
                 sb.append(parser().getFooter()).append("\n");
             }
             return sb.toString();

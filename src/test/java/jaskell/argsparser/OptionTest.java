@@ -15,7 +15,7 @@ public class OptionTest {
     public void testGetName() {
         Option option = Option.create("name")
                 .defaultValue("defaultValue")
-                .validator((value, values) -> true);
+                .validator(value -> true);
         assertEquals("name", option.getName());
     }
 
@@ -23,7 +23,7 @@ public class OptionTest {
     public void testArgString() {
         Option option = Option.create("name")
                 .defaultValue("defaultValue")
-                .validator((value, values) -> true);
+                .validator(value -> true);
         assertEquals("--name", option.argString());
     }
 
@@ -31,7 +31,7 @@ public class OptionTest {
     public void testGetDefaultValue() {
         Option option = Option.create("name")
                 .defaultValue("defaultValue")
-                .validator((value, values) -> true);
+                .validator(value -> true);
         assertEquals("defaultValue", option.getDefaultValue());
     }
 
@@ -40,7 +40,7 @@ public class OptionTest {
         Option option = Option.create("name")
                 .defaultValue("defaultValue")
                 .help("helpDocument")
-                .validator((value, values) -> true);
+                .validator(value -> true);
         assertEquals("helpDocument", option.getHelp());
     }
 
@@ -53,10 +53,10 @@ public class OptionTest {
 
     @Test
     public void testGetValidator() {
-        BiFunction<String, TreeSet<String>, Boolean> validator = (value, values) -> true;
+        Predicate<String> validator = value -> true;
         Option option = Option.create("name").defaultValue("defaultValue").validator(validator);
         assertEquals(validator, option.getValidator());
-        assertTrue(option.validate("anything", new TreeSet<>()));
+        assertTrue(option.validate("anything"));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class OptionTest {
 
     @Test
     public void testValidator() {
-        BiFunction<String, TreeSet<String>, Boolean> validator = (x, xs) -> x.equals("newValidator");
+        Predicate<String> validator = x -> x.equals("newValidator");
         Option option = Option.create("name").defaultValue("defaultValue")
                         .validator(validator);
         assertEquals(validator, option.getValidator());
@@ -83,21 +83,10 @@ public class OptionTest {
 
     @Test
     public void testValidate() {
-        BiFunction<String, TreeSet<String>, Boolean> validator = (x, xs) -> x.equals("newValidator");
+        Predicate<String> validator = x -> x.equals("newValidator");
         Option option = Option.create("name").defaultValue("defaultValue")
                 .validator(validator);
-        assertTrue(option.validate("newValidator", new TreeSet<>()));
-    }
-
-    @Test
-    public void testValidateState() {
-        BiFunction<String, TreeSet<String>, Boolean> validator = (x, xs) -> x.equals("newValidator") && !xs.contains(x);
-        Option option = Option.create("name").defaultValue("defaultValue")
-                .validator(validator);
-        assertTrue(option.validate("newValidator", new TreeSet<>()));
-        TreeSet<String> values = new TreeSet<>();
-        values.add("newValidator");
-        assertFalse(option.validate("newValidator", values));
+        assertTrue(option.validate("newValidator"));
     }
 
     @Test
