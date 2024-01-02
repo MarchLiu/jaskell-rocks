@@ -201,3 +201,7 @@ add tuple 2 to 8 and functor methods for them
 ### 1.8.4
 
 Exception's message typo
+
+### 2.0.0
+
+Remove preview features requirements.
